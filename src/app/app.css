@@ -228,3 +228,8 @@ body { overflow-x:hidden; }
   .global-search input { min-width:0; }
   .section-head { align-items:flex-start; gap:10px; }
 }
+
+/* Watchlist research annotations */
+.results-panel td select,.results-panel td textarea{max-width:190px;width:100%;border:1px solid #29445d;border-radius:7px;background:#08182b;color:#dceaf6;padding:7px;font:inherit;font-size:10px}
+.results-panel td textarea{min-width:150px;min-height:42px;resize:vertical;white-space:pre-wrap}
+.light-theme .results-panel td select,.light-theme .results-panel td textarea{background:#f3f7fb;color:#17334d;border-color:#cbd9e7}
