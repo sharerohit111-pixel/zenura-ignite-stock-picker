@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, RotateCcw, ShieldAlert, Wallet } from 'lucide-react';
 import { createPaperPortfolio, placePaperOrder, valuePaperPortfolio, type PaperPortfolio } from './engine';
+import { loadPaperPortfolio } from './storage';
 import { removePaperTrade } from './ledger';
 import { filterPaperTradesByDate } from './history';
 import { downloadPaperTradesCsv } from './export';
@@ -8,34 +9,19 @@ import { calculatePaperTradingAnalytics } from './analytics';
 import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup, validatePaperPortfolioBackup, PAPER_BACKUP_FORMAT, PAPER_BACKUP_VERSION } from './backup';
 import './paper-trading.css';
 
-const STORAGE_KEY = 'zi-paper-portfolio-v1';
 const money = (value:number) => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(value);
-const loadPortfolio = ():PaperPortfolio => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const value:unknown = JSON.parse(raw);
-      const checked = validatePaperPortfolioBackup({
-        format: PAPER_BACKUP_FORMAT,
-        version: PAPER_BACKUP_VERSION,
-        exportedAt: new Date().toISOString(),
-        portfolio: value
-      });
-      if (checked.ok) return checked.backup.portfolio;
-    }
-  } catch {}
-  return createPaperPortfolio(100000)!;
-};
+const loadResult = () => loadPaperPortfolio(localStorage);
 
 export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
   const hi = language === 'HI';
-  const [portfolio,setPortfolio] = useState<PaperPortfolio>(loadPortfolio);
+  const [initialLoad] = useState(loadResult);
+  const [portfolio,setPortfolio] = useState<PaperPortfolio>(initialLoad.portfolio);
   const [symbol,setSymbol] = useState('TCS');
   const [side,setSide] = useState<'BUY'|'SELL'>('BUY');
   const [quantity,setQuantity] = useState('1');
   const [price,setPrice] = useState('');
-  const [message,setMessage] = useState('');
-  const [messageError,setMessageError] = useState(false);
+  const [message,setMessage] = useState(initialLoad.recoveredInvalidData ? (initialLoad.recoveryCopySaved ? (language==='HI'?'पुराना पोर्टफोलियो डेटा अमान्य था। उसकी कॉपी सुरक्षित रखी गई है; नया वर्चुअल पोर्टफोलियो शुरू हुआ।':'Saved portfolio data was invalid. A recovery copy was preserved; a fresh virtual portfolio was started.') : (language==='HI'?'पुराना डेटा अमान्य था और उसकी कॉपी सुरक्षित नहीं हो सकी।':'Saved portfolio data was invalid and a recovery copy could not be saved.')) : '');
+  const [messageError,setMessageError] = useState(initialLoad.recoveredInvalidData);
   const [restorePreview,setRestorePreview] = useState<PaperPortfolio | null>(null);
   const [historyFrom,setHistoryFrom] = useState('');
   const [historyTo,setHistoryTo] = useState('');
