@@ -12,6 +12,17 @@ describe('runScreener',()=>{
  it('sorts with missing values last',()=>{const r=runScreener(rows.slice(0,2),{rules:[],sortBy:'PE',sortDirection:'DESC'});expect(r.rows.map(x=>x.company.name)).toEqual(['Alpha','Beta']);});
  it('checks the latest period for IS_MISSING instead of preferring an older verified value',()=>{const row:ScreenerRow={company:{companyId:'c5',name:'Epsilon',identityStatus:'CONFIRMED'},observations:[obs(10,'VERIFIED','2024-03-31'),obs(null,'STALE','2025-03-31')]};const r=runScreener([row],{rules:[{metric:'PE',operator:'IS_MISSING'}]});expect(r.matched).toBe(1);});
  it('does not call a newer present value missing because an older period was missing',()=>{const row:ScreenerRow={company:{companyId:'c6',name:'Zeta',identityStatus:'CONFIRMED'},observations:[obs(null,'STALE','2024-03-31'),obs(16,'VERIFIED','2025-03-31')]};const r=runScreener([row],{rules:[{metric:'PE',operator:'IS_MISSING'}]});expect(r.matched).toBe(0);});
+ it('supports greater-than, equality and inclusive between custom rules',()=>{
+  const candidates:ScreenerRow[]=[
+   {company:{companyId:'a',name:'A',identityStatus:'CONFIRMED'},observations:[obs(10)]},
+   {company:{companyId:'b',name:'B',identityStatus:'CONFIRMED'},observations:[obs(20)]},
+   {company:{companyId:'c',name:'C',identityStatus:'CONFIRMED'},observations:[obs(30)]}
+  ];
+  expect(runScreener(candidates,{rules:[{metric:'PE',operator:'GT',value:10}]}).rows.map(x=>x.company.name)).toEqual(['B','C']);
+  expect(runScreener(candidates,{rules:[{metric:'PE',operator:'EQ',value:20}]}).rows.map(x=>x.company.name)).toEqual(['B']);
+  expect(runScreener(candidates,{rules:[{metric:'PE',operator:'BETWEEN',value:10,upperValue:20}]}).rows.map(x=>x.company.name)).toEqual(['A','B']);
+ });
+
 });
 
 
