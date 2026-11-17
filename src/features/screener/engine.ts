@@ -128,6 +128,11 @@ function isSavedScreen(value: unknown): value is SavedScreen {
         !FILTER_OPERATORS.includes(rule.operator as FilterOperator)) return false;
     if (rule.value !== undefined && (typeof rule.value !== 'number' || !Number.isFinite(rule.value))) return false;
     if (rule.upperValue !== undefined && (typeof rule.upperValue !== 'number' || !Number.isFinite(rule.upperValue))) return false;
+    if (rule.operator === 'IS_MISSING') {
+      if (rule.value !== undefined || rule.upperValue !== undefined) return false;
+    } else if (rule.operator === 'BETWEEN') {
+      if (rule.value === undefined || rule.upperValue === undefined || rule.value > rule.upperValue) return false;
+    } else if (rule.value === undefined || rule.upperValue !== undefined) return false;
     if (rule.periods !== undefined && (!Array.isArray(rule.periods) ||
         !rule.periods.every(period => PERIOD_TYPES.includes(period)))) return false;
     return rule.verifiedOnly === undefined || typeof rule.verifiedOnly === 'boolean';
