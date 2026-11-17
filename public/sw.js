@@ -1,5 +1,5 @@
 const BASE = self.registration.scope;
-const CACHE = 'zenura-stock-picker-shell-v2';
+const CACHE = 'zenura-stock-picker-shell-v3';
 const CORE = ['.', 'index.html', 'manifest.webmanifest', 'icons/icon.svg'].map(path => new URL(path, BASE).toString());
 
 self.addEventListener('install', event => {
