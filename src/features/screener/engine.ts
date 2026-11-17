@@ -107,6 +107,8 @@ export interface SavedScreen {
   rules: ScreenerRule[];
   search: string;
   updatedAt: string;
+  sortMetric?: MetricKey | 'NAME';
+  sortDirection?: 'ASC' | 'DESC';
 }
 const STORAGE_KEY = 'zi-saved-screens-v1';
 const PERIOD_TYPES: PeriodType[] = ['ANNUAL', 'QUARTERLY', 'TTM', 'INSTANT', 'CUSTOM'];
@@ -117,6 +119,8 @@ function isSavedScreen(value: unknown): value is SavedScreen {
   if (typeof item.id !== 'string' || !item.id || typeof item.name !== 'string' ||
       !item.name.trim() || !Array.isArray(item.rules) || typeof item.search !== 'string' ||
       typeof item.updatedAt !== 'string') return false;
+  if (item.sortMetric !== undefined && item.sortMetric !== 'NAME' && !(item.sortMetric in METRIC_CATALOG)) return false;
+  if (item.sortDirection !== undefined && item.sortDirection !== 'ASC' && item.sortDirection !== 'DESC') return false;
   return item.rules.every((candidate: unknown) => {
     if (!candidate || typeof candidate !== 'object') return false;
     const rule = candidate as Partial<ScreenerRule>;
