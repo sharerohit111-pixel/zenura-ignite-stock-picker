@@ -40,7 +40,9 @@ function latestObservation(items: MetricObservation[], rule: ScreenerRule): Metr
     .filter(item => item.metricKey === rule.metric)
     .filter(item => !rule.periods?.length || rule.periods.includes(item.periodType))
     .filter(item => rule.operator === 'IS_MISSING' || !rule.verifiedOnly || item.status === 'VERIFIED')
-    .sort((a, b) => Date.parse(b.periodEnd) - Date.parse(a.periodEnd) || Date.parse(b.sourceRetrievedAt) - Date.parse(a.sourceRetrievedAt))[0];
+    .sort((a, b) => Number(b.status === 'VERIFIED') - Number(a.status === 'VERIFIED') ||
+      Date.parse(b.periodEnd) - Date.parse(a.periodEnd) ||
+      Date.parse(b.sourceRetrievedAt) - Date.parse(a.sourceRetrievedAt))[0];
 }
 
 function matches(value: number | null | undefined, rule: ScreenerRule): boolean {
