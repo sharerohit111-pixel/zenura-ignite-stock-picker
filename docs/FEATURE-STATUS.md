@@ -24,14 +24,15 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 | Quality score | Explainable weighted score and evidence coverage | Implemented | Engine withholds score below coverage threshold; no company score until verified inputs exist |
 | Comparison | Period-aligned company comparison | Implemented | UI and engine present; figures withheld until verified provider data exists |
 | Watchlist | Add/remove and browser-local persistence | Prototype | Demo companies only; no account sync |
+| Watchlist | Research notes and CSV export | Implemented | Local notes are validated and CSV export protects against spreadsheet formula injection |
 | AI | Grounded research assistant | Blocked | Requires verified data pipeline and secure model service |
-| Reports | PDF/export/share | Pending | Report engine and source metadata output not implemented |
+| Reports | Editable research note and Print / Save PDF | Implemented | Browser print-to-PDF; report clearly warns that no market data is connected |
 | PWA | Manifest, icon and service worker shell | Implemented | Cache version updated; install/offline QA remains |
 | Security | Authentication, authorization, audit and API security | Blocked | Requires backend and security design |
 | Backend | Provider ingestion, API, cache and monitoring | Blocked | Static GitHub Pages cannot safely store provider secrets |
 | Monetization | Ads and subscriptions | Disabled by design | Must remain disabled for initial release |
-| Release | CI tests, type-check, build | Automated tests passing | 20 unit tests across five test files; CI runs tests and build |
-| Release | Deployment | Pending confirmation | GitHub Pages deployment workflow is queued for the latest tested commit |
+| Release | CI tests, type-check, build | Automated tests passing | Latest main commit passed dependency install, unit tests, type-check and production build |
+| Release | GitHub Pages deployment | Live | Latest main commit deployed successfully on 17 Nov 2026 |
 | Release | Android Chrome/iOS Safari, offline/PWA and accessibility QA | Pending | Requires physical-device/browser verification |
 
 ## Non-negotiable data integrity
@@ -48,7 +49,7 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 1. Select a provider and obtain written confirmation that the intended commercial app display/use is licensed. Exchange data is subject to subscriber agreements and redistribution/display restrictions.
 2. Obtain provider credentials and store them only in a secure backend secret store—not in the static frontend or GitHub Pages bundle.
 3. Implement backend ingestion/API, source registry, exchange master reconciliation, caching, monitoring and access controls.
-4. Complete Hindi translation, report export and grounded AI only after the data pipeline is verified.
+4. Complete Hindi translation and grounded AI only after the data pipeline is verified.
 5. Complete physical-device accessibility, responsive, offline and PWA update QA.
 6. Add authentication and user data sync after backend/security architecture is approved.
 
