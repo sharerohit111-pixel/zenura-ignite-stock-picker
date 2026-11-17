@@ -6,4 +6,6 @@ describe('calculateDcf',()=>{
  it('rejects discount rate not above terminal growth',()=>{const r=calculateDcf({...base,discountRate:0.03});expect(r.ok).toBe(false);});
  it('rejects non-positive shares and invalid horizon',()=>{expect(calculateDcf({...base,sharesOutstanding:0}).ok).toBe(false);expect(calculateDcf({...base,forecastYears:11}).ok).toBe(false);});
  it('supports negative net debt (net cash)',()=>{const r=calculateDcf({...base,netDebt:-50});expect(r.ok&&r.result.equityValue>r.result.enterpriseValue).toBe(true);});
+ it('rejects finite inputs that overflow the projected cash flows',()=>{const r=calculateDcf({...base,baseFreeCashFlow:Number.MAX_VALUE,growthRate:1,forecastYears:10});expect(r.ok).toBe(false);if(!r.ok)expect(r.errors.join(' ')).toContain('non-finite');});
+ it('rejects a finite input combination that overflows per-share value',()=>{const r=calculateDcf({...base,netDebt:-Number.MAX_VALUE,sharesOutstanding:Number.MIN_VALUE});expect(r.ok).toBe(false);if(!r.ok)expect(r.errors.join(' ')).toContain('non-finite');});
 });
