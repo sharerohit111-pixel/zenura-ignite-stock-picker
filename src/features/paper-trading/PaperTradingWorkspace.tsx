@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, RotateCcw, ShieldAlert, Wallet } from 'lucide-react';
 import { createPaperPortfolio, placePaperOrder, valuePaperPortfolio, type PaperPortfolio } from './engine';
 import { downloadPaperTradesCsv } from './export';
+import { calculatePaperTradingAnalytics } from './analytics';
 import './paper-trading.css';
 
 const STORAGE_KEY = 'zi-paper-portfolio-v1';
@@ -32,6 +33,7 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
   const [messageError,setMessageError] = useState(false);
   useEffect(()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(portfolio));}catch{setMessage(hi?'इस डिवाइस पर सेव नहीं हो पाया।':'Could not save on this device.');setMessageError(true);}},[portfolio,hi]);
   const valuation = useMemo(()=>valuePaperPortfolio(portfolio,{}),[portfolio]);
+  const analytics = useMemo(()=>calculatePaperTradingAnalytics(portfolio.trades),[portfolio.trades]);
   const positions = Object.values(portfolio.positions);
   const submit = () => {
     const result = placePaperOrder(portfolio,{symbol,side,quantity:Number(quantity),price:Number(price)});
@@ -55,6 +57,9 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
       <article className="paper-metric"><span>{hi?'होल्डिंग्स':'Holdings'}</span><strong>{positions.length}</strong><small>{hi?'अलग-अलग सिंबल':'Unique symbols'}</small></article>
       <article className="paper-metric"><span>{hi?'कुल पेपर ट्रेड':'Paper trades'}</span><strong>{portfolio.trades.length}</strong><small>{hi?'इस डिवाइस पर सेव':'Saved on this device'}</small></article>
       <article className="paper-metric"><span>{hi?'पोर्टफोलियो मूल्य':'Portfolio value'}</span><strong>{valuation.totalEquity===null?hi?'कीमत उपलब्ध नहीं':'Price unavailable':money(valuation.totalEquity)}</strong><small>{hi?'होल्डिंग कीमतें उपलब्ध नहीं':'No verified market prices connected'}</small></article>
+      <article className="paper-metric"><span>{hi?'वास्तविक लाभ/हानि':'Realized P/L'}</span><strong className={analytics.realizedProfitLoss>=0?'paper-buy':'paper-sell'}>{analytics.valid?money(analytics.realizedProfitLoss):hi?'डेटा अमान्य':'Invalid ledger'}</strong><small>{hi?'बेचे गए शेयरों पर':'From completed sells only'}</small></article>
+      <article className="paper-metric"><span>{hi?'कुल खरीद':'Buy turnover'}</span><strong>{analytics.valid?money(analytics.buyTurnover):'—'}</strong><small>{hi?'पेपर खरीद का कुल मूल्य':'Total paper buy value'}</small></article>
+      <article className="paper-metric"><span>{hi?'कुल बिक्री':'Sell turnover'}</span><strong>{analytics.valid?money(analytics.sellTurnover):'—'}</strong><small>{hi?'पेपर बिक्री का कुल मूल्य':'Total paper sell value'}</small></article>
     </div>
     <div className="paper-layout">
       <div className="panel paper-order-panel"><div className="panel-title"><div><span className="eyebrow muted">{hi?'नया पेपर ऑर्डर':'NEW PAPER ORDER'}</span><h3>{hi?'ऑर्डर दर्ज करें':'Place a paper order'}</h3></div><Wallet size={19}/></div>
