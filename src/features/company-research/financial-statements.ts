@@ -44,7 +44,8 @@ export function buildStatementColumns(
     label: `${periodType} · ${periodEnd}`,
     lines: definitions.map(definition => {
       const matches = relevant.filter(item => item.metricKey === definition.key && item.periodEnd === periodEnd)
-        .sort((a, b) => b.sourceRetrievedAt.localeCompare(a.sourceRetrievedAt));
+        .sort((a, b) => Number(b.status === 'VERIFIED') - Number(a.status === 'VERIFIED') ||
+          b.sourceRetrievedAt.localeCompare(a.sourceRetrievedAt));
       const chosen = matches[0];
       return {
         key: definition.key,
