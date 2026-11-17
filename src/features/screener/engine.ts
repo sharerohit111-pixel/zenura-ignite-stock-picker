@@ -62,7 +62,7 @@ function matches(value: number | null | undefined, rule: ScreenerRule): boolean 
 export function runScreener(rows: ScreenerRow[], options: ScreenerOptions): ScreenerResult {
   const term = options.search?.trim().toLocaleLowerCase() ?? '';
   let excludedForIdentity = 0;
-  let excludedForData = 0;
+  const excludedForDataIds = new Set<string>();
   const eligible = rows.filter(row => {
     const identityAllowed = options.includeUnverifiedIdentity ||
       (!row.company.identityStatus || row.company.identityStatus === 'CONFIRMED');
@@ -76,7 +76,7 @@ export function runScreener(rows: ScreenerRow[], options: ScreenerOptions): Scre
     const passes = options.rules.every(rule => {
       const observation = latestObservation(row.observations, rule);
       const ok = matches(observation?.value, rule);
-      if (!ok && observation?.value == null) excludedForData++;
+      if (!ok && observation?.value == null) excludedForDataIds.add(row.company.companyId);
       return ok;
     });
     return passes;
@@ -94,7 +94,7 @@ export function runScreener(rows: ScreenerRow[], options: ScreenerOptions): Scre
   } else {
     filtered.sort((a, b) => a.company.name.localeCompare(b.company.name));
   }
-  return { rows: filtered, matched: filtered.length, excludedForIdentity, excludedForData };
+  return { rows: filtered, matched: filtered.length, excludedForIdentity, excludedForData: excludedForDataIds.size };
 }
 
 export interface SavedScreen {
