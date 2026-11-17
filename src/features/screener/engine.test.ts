@@ -50,4 +50,21 @@ describe('saved screener settings',()=>{
   saveScreen(first,storage);saveScreen(second,storage);
   expect(deleteSavedScreen('one',storage).map(item=>item.id)).toEqual(['two']);
  });
+ it('persists custom BETWEEN rules with both inclusive bounds',()=>{
+  const storage=makeStorage();
+  const screen:SavedScreen={id:'custom-between',name:'Custom range',rules:[{metric:'ROE',operator:'BETWEEN',value:12,upperValue:25}],search:'',updatedAt:'2026-11-17T00:00:00.000Z'};
+  saveScreen(screen,storage);
+  expect(loadSavedScreens(storage)).toEqual([screen]);
+ });
+ it('rejects malformed saved rules with missing or contradictory bounds',()=>{
+  const storage=makeStorage();
+  const base={id:'bad',name:'Bad screen',search:'',updatedAt:'2026-11-17T00:00:00.000Z'};
+  storage.setItem('zi-saved-screens-v1',JSON.stringify([
+   {...base,rules:[{metric:'ROE',operator:'GTE'}]},
+   {...base,id:'bad-range',rules:[{metric:'ROE',operator:'BETWEEN',value:25,upperValue:10}]},
+   {...base,id:'bad-missing',rules:[{metric:'ROE',operator:'IS_MISSING',value:0}]}
+  ]));
+  expect(loadSavedScreens(storage)).toEqual([]);
+ });
+
 });
