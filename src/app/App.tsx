@@ -67,7 +67,13 @@ export default function App() {
   const [sortMetric,setSortMetric] = useState<MetricKey|'NAME'>('NAME');
   const [sortDirection,setSortDirection] = useState<'ASC'|'DESC'>('DESC');
   const [watchlist,setWatchlist] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('zi-watchlist') || '[]') as string[]; } catch { return []; }
+    try {
+      const parsed: unknown = JSON.parse(localStorage.getItem('zi-watchlist') || '[]');
+      if (!Array.isArray(parsed)) return [];
+      return [...new Set(parsed.filter((symbol): symbol is string =>
+        typeof symbol === 'string' && demoCompanies.some(company => company.symbol === symbol)
+      ))];
+    } catch { return []; }
   });
   type WatchlistResearch = { status:'To review'|'Researching'|'Completed'; notes:string };
   const [watchlistResearch,setWatchlistResearch] = useState<Record<string,WatchlistResearch>>(() => {
