@@ -28,13 +28,18 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 | Watchlist | Add/remove and browser-local persistence | Prototype | Demo companies only; no account sync |
 | Watchlist | Research notes and CSV export | Implemented | Local notes are validated and CSV export protects against spreadsheet formula injection |
 | Watchlist | Versioned JSON backup and validated restore | Implemented | Export/restore controls in Watchlist; restore validates format, version, symbols and notes, then asks before replacing local data; device-local only |
+| Paper Trading | Virtual portfolio engine and order validation | Implemented | ₹1,00,000 virtual starting cash; BUY/SELL uses manually entered reference prices; no broker/exchange execution |
+| Paper Trading | Portfolio positions and trade history | Implemented | Browser-local persistence; missing reference prices remain unavailable, not zero |
+| Paper Trading | Realized P/L and turnover analytics | Implemented | Ledger replay calculates realized P/L, buy/sell turnover and completed trades |
+| Paper Trading | Trade history CSV export | Implemented | CSV escaping and spreadsheet formula-injection protection included |
+| Paper Trading | Versioned JSON backup and validated restore | Implemented | Export/restore validates portfolio ledger, cash and positions; preview and confirmation before replacing local data; device-local only |
 | AI | Grounded research assistant | Blocked | Requires verified data pipeline and secure model service |
 | Reports | Editable research note and Print / Save PDF | Implemented | Browser print-to-PDF; report clearly warns that no market data is connected |
 | PWA | Manifest, icon and service worker shell | Implemented | Cache version updated; install/offline QA remains |
 | Security | Authentication, authorization, audit and API security | Blocked | Architecture plan documented; provider/hosting decisions and implementation remain |
 | Backend | Provider ingestion, API, cache and monitoring | Blocked | Static GitHub Pages cannot safely store provider secrets |
 | Monetization | Ads and subscriptions | Disabled by design | Must remain disabled for initial release |
-| Release | CI tests, type-check, build | Automated tests passing | Latest main commit passed automated build verification |
+| Release | CI tests, type-check, build | Automated tests passing | Latest main commit passed automated build verification; paper-trading backup/restore commit `6ef92b0` verified |
 | Release | GitHub Pages deployment | Live | Latest main commit deployment succeeded on 17 Nov 2026 |
 | Release | Android Chrome/iOS Safari, offline/PWA and accessibility QA | Pending | Requires physical-device/browser verification |
 
