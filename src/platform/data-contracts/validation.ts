@@ -1,4 +1,9 @@
-import type { MetricObservation } from './types';
+import type { MetricObservation, PeriodType, DataStatus, MetricUnit } from './types';
+import { METRIC_CATALOG } from './metric-catalog';
+
+const PERIOD_TYPES: PeriodType[] = ['ANNUAL', 'QUARTERLY', 'TTM', 'INSTANT', 'CUSTOM'];
+const DATA_STATUSES: DataStatus[] = ['VERIFIED', 'STALE', 'UNVERIFIED', 'MISSING', 'REJECTED'];
+const METRIC_UNITS: MetricUnit[] = ['CURRENCY', 'PERCENT', 'MULTIPLE', 'PER_SHARE', 'SHARES', 'DAYS', 'RATIO', 'COUNT', 'CURRENCY_PER_SHARE'];
 
 const finiteOrNull = (value: number | null): boolean => value === null || Number.isFinite(value);
 
@@ -9,6 +14,10 @@ export function validateObservation(input: MetricObservation): string[] {
   if (typeof input.observationId !== 'string' || !input.observationId.trim()) errors.push('observationId is required');
   if (typeof input.companyId !== 'string' || !input.companyId.trim()) errors.push('companyId is required');
   if (typeof input.sourceId !== 'string' || !input.sourceId.trim()) errors.push('sourceId is required');
+  if (typeof input.metricKey !== 'string' || !(input.metricKey in METRIC_CATALOG)) errors.push('metricKey is not recognized');
+  if (!METRIC_UNITS.includes(input.unit)) errors.push('unit is not recognized');
+  if (!PERIOD_TYPES.includes(input.periodType)) errors.push('periodType is not recognized');
+  if (!DATA_STATUSES.includes(input.status)) errors.push('status is not recognized');
   if (input.value !== null && (typeof input.value !== 'number' || !finiteOrNull(input.value))) errors.push('value must be finite or null');
   if (input.value === null && input.status !== 'MISSING') errors.push('null value must use MISSING status');
   if (input.value !== null && input.status === 'MISSING') errors.push('non-null value cannot use MISSING status');
