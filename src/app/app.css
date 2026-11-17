@@ -51,3 +51,32 @@
 .research-company-card{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
 .research-company-card h2{margin:6px 0 2px;font-size:21px}
 .research-company-card p{margin:0;color:var(--muted,#8b9ab3)}
+
+/* Mobile layout correction: prevent header and hero actions from overflowing narrow screens */
+@media (max-width: 760px) {
+  .topbar { min-width: 0; gap: 8px; }
+  .top-left { flex: 0 1 auto; min-width: 0; gap: 7px; }
+  .crumb { min-width: 0; max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+  .crumb span { padding: 0 3px; }
+  .top-actions { flex: 1 1 auto; min-width: 0; gap: 7px; justify-content: flex-end; }
+  .global-search { flex: 1 1 0; min-width: 0; width: auto; max-width: none; padding: 0 9px; }
+  .global-search input { min-width: 0; }
+  .lang { flex: 0 0 auto; padding: 8px; gap: 5px; }
+  .icon-btn, .avatar.small { display: none; }
+
+  .welcome { width: 100%; min-width: 0; padding: 24px 20px; }
+  .welcome > div:first-child { width: 100%; min-width: 0; }
+  .welcome h1 { overflow-wrap: anywhere; font-size: clamp(27px, 7vw, 31px); }
+  .welcome p { max-width: 100%; overflow-wrap: break-word; }
+  .welcome-actions { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; gap: 10px; }
+  .welcome-actions button { width: 100%; min-width: 0; min-height: 48px; justify-content: center; text-align: center; white-space: normal; }
+  .section-head { align-items: flex-start; gap: 10px; }
+}
+@media (max-width: 380px) {
+  .main { padding-left: 12px; padding-right: 12px; }
+  .crumb { max-width: 65px; }
+  .global-search { padding: 0 7px; }
+  .global-search input { font-size: 10px; }
+  .lang { font-size: 9px; }
+  .welcome { padding: 21px 16px; }
+}
