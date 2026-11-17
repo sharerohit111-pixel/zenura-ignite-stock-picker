@@ -6,5 +6,6 @@ const rows:ScreenerRow[]=[{company:{companyId:'c1',name:'Alpha',identityStatus:'
 describe('runScreener',()=>{
  it('filters verified metric observations and excludes unconfirmed identities by default',()=>{const r=runScreener(rows,{rules:[{metric:'PE',operator:'LT',value:20,verifiedOnly:true}]});expect(r.rows.map(x=>x.company.name)).toEqual(['Alpha']);expect(r.excludedForIdentity).toBe(1);});
  it('finds missing observations without treating them as zero',()=>{const r=runScreener(rows,{rules:[{metric:'PE',operator:'IS_MISSING'}]});expect(r.rows.map(x=>x.company.name)).toEqual(['Gamma']);});
+ it('counts companies with missing data once even when multiple filters fail',()=>{const r=runScreener(rows,{rules:[{metric:'PE',operator:'LT',value:20},{metric:'ROE',operator:'GT',value:15}]});expect(r.excludedForData).toBe(2);});
  it('sorts with missing values last',()=>{const r=runScreener(rows.slice(0,2),{rules:[],sortBy:'PE',sortDirection:'DESC'});expect(r.rows.map(x=>x.company.name)).toEqual(['Alpha','Beta']);});
 });
