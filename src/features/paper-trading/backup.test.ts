@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createPaperPortfolio, placePaperOrder } from './engine';
-import { createPaperPortfolioBackup, parsePaperPortfolioBackup, validatePaperPortfolioBackup } from './backup';
+import { createPaperPortfolioBackup, parsePaperPortfolioBackup, parsePaperPortfolioRecoveryCopy, validatePaperPortfolioBackup } from './backup';
 
 function sample() {
   let portfolio = createPaperPortfolio(100000)!;
@@ -52,6 +52,15 @@ describe('paper portfolio JSON backup',()=>{
     const blank=structuredClone(backup);
     blank.portfolio.trades[0].id='   ';
     expect(validatePaperPortfolioBackup(blank).ok).toBe(false);
+  });
+  it('accepts a valid raw recovery copy and rejects malformed or inconsistent copies',()=>{
+    const portfolio=sample();
+    const parsed=parsePaperPortfolioRecoveryCopy(JSON.stringify(portfolio));
+    expect(parsed.ok).toBe(true);
+    if(parsed.ok) expect(parsed.backup.portfolio.trades).toHaveLength(2);
+    expect(parsePaperPortfolioRecoveryCopy('{broken').ok).toBe(false);
+    const invalid={...portfolio,cash:1};
+    expect(parsePaperPortfolioRecoveryCopy(JSON.stringify(invalid)).ok).toBe(false);
   });
   it('rejects files larger than one megabyte',()=>{
     expect(parsePaperPortfolioBackup(' '.repeat(1_000_001)).ok).toBe(false);
