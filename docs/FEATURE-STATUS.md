@@ -35,14 +35,15 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 | Paper Trading | Versioned JSON backup and validated restore | Implemented | Export/restore validates portfolio ledger, cash and positions; rejects blank, overlong and duplicate trade IDs; preview and confirmation before replacing local data; device-local only |
 | Paper Trading | Date-wise trade history filter | Live | Inclusive local-calendar From/To filters, open-ended ranges, clear filter and filtered CSV export; invalid/reversed ranges show no trades |
 | Paper Trading | Saved portfolio integrity check | Implemented | Saved local portfolio is validated against the versioned backup schema and replayed ledger before loading; invalid saved state falls back to a fresh virtual portfolio |
+| Paper Trading | Raw recovery-copy download and validated restore preview | Implemented | Preserves the invalid saved payload as a local recovery text file; user can validate a selected copy against the complete ledger and preview it before explicitly confirming restore; 1 MB input limit; remains device-local |
 | AI | Grounded research assistant | Blocked | Requires verified data pipeline and secure model service |
 | Reports | Editable research note and Print / Save PDF | Implemented | Browser print-to-PDF; report clearly warns that no market data is connected |
 | PWA | Manifest, icon and service worker shell | Implemented | Cache version updated; install/offline QA remains |
 | Security | Authentication, authorization, audit and API security | Blocked | Architecture plan documented; provider/hosting decisions and implementation remain |
 | Backend | Provider ingestion, API, cache and monitoring | Blocked | Static GitHub Pages cannot safely store provider secrets |
 | Monetization | Ads and subscriptions | Disabled by design | Must remain disabled for initial release |
-| Release | CI tests, type-check, build | Automated tests passing | Latest main commit passed automated build verification; paper-trading backup/restore commit `6ef92b0` verified |
-| Release | GitHub Pages deployment | Live | Latest main commit deployment succeeded on 17 Nov 2026 |
+| Release | CI tests, type-check, build | Automated tests passing | Paper-trading backup and raw recovery-copy validation are covered by Vitest; latest main commit must pass CI before release |
+| Release | GitHub Pages deployment | Live | Latest verified main deployment succeeded on 17 Nov 2026; subsequent commits are subject to their own deployment run |
 | Release | Android Chrome/iOS Safari, offline/PWA and accessibility QA | Pending | Requires physical-device/browser verification |
 
 ## Non-negotiable data integrity
