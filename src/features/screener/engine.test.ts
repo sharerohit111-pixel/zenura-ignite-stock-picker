@@ -76,4 +76,14 @@ describe('saved screener settings',()=>{
   expect(loadSavedScreens(storage)).toEqual([]);
  });
 
+ it('rejects inherited object keys as saved sort metrics',()=>{
+  const storage=makeStorage();
+  const base={id:'bad-sort',name:'Bad sort metric',rules:[],search:'',updatedAt:'2026-11-17T00:00:00.000Z'};
+  storage.setItem('zi-saved-screens-v1',JSON.stringify([
+   {...base,sortMetric:'toString'},
+   {...base,id:'bad-sort-constructor',sortMetric:'constructor'}
+  ]));
+  expect(loadSavedScreens(storage)).toEqual([]);
+ });
+
 });
