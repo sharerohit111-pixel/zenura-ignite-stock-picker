@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, RotateCcw, ShieldAlert, Wallet } from 'lucide-react';
 import { createPaperPortfolio, placePaperOrder, valuePaperPortfolio, type PaperPortfolio } from './engine';
-import { loadPaperPortfolio } from './storage';
+import { loadPaperPortfolio, PAPER_PORTFOLIO_STORAGE_KEY } from './storage';
 import { removePaperTrade } from './ledger';
 import { filterPaperTradesByDate } from './history';
 import { downloadPaperTradesCsv } from './export';
@@ -26,7 +26,7 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
   const [historyFrom,setHistoryFrom] = useState('');
   const [historyTo,setHistoryTo] = useState('');
   const [backupInput,setBackupInput] = useState<HTMLInputElement | null>(null);
-  useEffect(()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(portfolio));}catch{setMessage(hi?'इस डिवाइस पर सेव नहीं हो पाया।':'Could not save on this device.');setMessageError(true);}},[portfolio,hi]);
+  useEffect(()=>{try{localStorage.setItem(PAPER_PORTFOLIO_STORAGE_KEY,JSON.stringify(portfolio));}catch{setMessage(hi?'इस डिवाइस पर सेव नहीं हो पाया।':'Could not save on this device.');setMessageError(true);}},[portfolio,hi]);
   const valuation = useMemo(()=>valuePaperPortfolio(portfolio,{}),[portfolio]);
   const analytics = useMemo(()=>calculatePaperTradingAnalytics(portfolio.trades),[portfolio.trades]);
   const filteredTrades = useMemo(()=>filterPaperTradesByDate(portfolio.trades,{from:historyFrom,to:historyTo}),[portfolio.trades,historyFrom,historyTo]);
