@@ -80,3 +80,75 @@
   .lang { font-size: 9px; }
   .welcome { padding: 21px 16px; }
 }
+
+
+/* Product polish pass: restrained institutional research terminal styling */
+:root {
+  --bg: #07111f;
+  --line: #203247;
+}
+.shell { background: #07111f; color: #e6edf5; }
+.sidebar { background: #091625; border-color: #1d3044; }
+.brand { padding-bottom: 30px; }
+.brand-mark { border-radius: 10px; box-shadow: 0 5px 18px #1d9bb522; }
+.nav-item { border-radius: 8px; font-size: 12px; transition: background .16s ease, color .16s ease; }
+.nav-item.active { background: #102b40; box-shadow: inset 2px 0 #52c5d8; color: #e8f7fb; }
+.main { max-width: 1500px; padding-left: clamp(22px, 3.3vw, 52px); padding-right: clamp(22px, 3.3vw, 52px); }
+.topbar { border-color: #1d3044; }
+.global-search, .lang, .icon-btn { border-radius: 9px; background: #0c1b2b; border-color: #263a50; }
+.global-search:focus-within { border-color: #4ca9bb; box-shadow: 0 0 0 3px #4ca9bb18; }
+.welcome {
+  margin: 32px 0 38px; min-height: 300px; padding: clamp(28px, 4vw, 48px);
+  border: 1px solid #29445b; border-radius: 18px;
+  background: linear-gradient(115deg, #10283b 0%, #0c1e30 58%, #0b1a2b 100%);
+  box-shadow: 0 16px 45px #020a1426;
+}
+.welcome h1 { max-width: 650px; font-size: clamp(32px, 3.3vw, 46px); line-height: 1.08; letter-spacing: -1.8px; }
+.welcome p { max-width: 540px; font-size: 13px; line-height: 1.85; color: #a6b7c8; }
+.eyebrow { letter-spacing: 1.5px; }
+.primary, .secondary { min-height: 42px; padding: 0 16px; border-radius: 8px; font-size: 12px; }
+.primary { background: #6bd5df; color: #06202a; box-shadow: none; }
+.primary:hover { background: #8be3e9; }
+.secondary { background: #10263a; border-color: #35516a; color: #d5e4ef; }
+.section-head { margin-bottom: 16px; }
+.section-head h2 { font-size: 21px; }
+.quick-grid { gap: 16px; }
+.feature-card, .panel, .filter-panel, .results-panel, .commodity-card {
+  border-radius: 12px; border-color: #263b50; background: #0c1b2b; box-shadow: none;
+}
+.feature-card { min-height: 185px; padding: 21px; }
+.feature-card:hover { transform: translateY(-2px); border-color: #47758b; box-shadow: 0 12px 24px #0002; }
+.feature-card h3 { font-size: 14px; }
+.feature-card p, .panel-copy { font-size: 11px; line-height: 1.8; color: #9aafc1; }
+.feature-icon { border-radius: 9px; }
+.panel { padding: 21px; }
+.panel-title h3 { font-size: 14px; }
+.status-line { font-size: 11px; }
+.workspace-page { padding-top: 30px; }
+.page-heading h1 { font-size: clamp(25px, 2.5vw, 32px); letter-spacing: -1px; }
+.page-heading p { font-size: 12px; }
+.demo-warning { border-radius: 9px; font-size: 11px; }
+.filter-panel label { font-size: 11px; }
+.filter-panel input, .sort-controls select { border-radius: 7px; }
+.results-top b { font-size: 13px; }
+.results-top small { font-size: 10px; }
+th { font-size: 10px; }
+td { font-size: 11px; }
+.company-link b { font-size: 11px; }
+footer { color: #8296aa; border-color: #203247; }
+@media (max-width: 760px) {
+  .main { padding-left: 16px; padding-right: 16px; }
+  .topbar { height: 64px; }
+  .welcome { margin: 20px 0 28px; padding: 25px 21px; border-radius: 14px; }
+  .welcome h1 { font-size: clamp(29px, 8vw, 35px); letter-spacing: -1.1px; }
+  .welcome p { font-size: 12px; line-height: 1.75; }
+  .welcome-actions { display: grid; grid-template-columns: 1fr; }
+  .welcome-actions button { width: 100%; min-height: 48px; }
+  .section-head h2 { font-size: 19px; }
+  .data-note { max-width: 135px; font-size: 9px; }
+  .feature-card { min-height: 0; padding: 18px; }
+  .feature-card h3 { margin-top: 13px; }
+  .bottom-grid { gap: 12px; }
+  .panel { padding: 17px; }
+  .workspace-page { padding-top: 23px; }
+}
