@@ -23,11 +23,11 @@ self.addEventListener('fetch', event => {
       const response = await fetch(event.request);
       if (response && response.ok && response.type === 'basic') {
         const copy = response.clone();
-        event.waitUntil(
-          caches.open(CACHE)
-            .then(cache => cache.put(event.request, copy))
-            .catch(() => undefined)
-        );
+        try {
+          await caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        } catch {
+          // A cache quota or storage failure must not block the network response.
+        }
       }
       return response;
     } catch {
