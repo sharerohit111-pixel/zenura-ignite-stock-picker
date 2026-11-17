@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, RotateCcw, ShieldAlert, Wallet } from 'lucide-react';
 import { createPaperPortfolio, placePaperOrder, valuePaperPortfolio, type PaperPortfolio } from './engine';
+import { removePaperTrade } from './ledger';
 import { downloadPaperTradesCsv } from './export';
 import { calculatePaperTradingAnalytics } from './analytics';
 import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup } from './backup';
@@ -67,6 +68,14 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
     if (backupInput) backupInput.value='';
     setMessage(hi?'पेपर पोर्टफोलियो सफलतापूर्वक Restore हुआ।':'Paper portfolio restored successfully.'); setMessageError(false);
   };
+  const deleteTrade = (tradeId:string) => {
+    if(!window.confirm(hi?'क्या आप इस पेपर ट्रेड को हटाना चाहते हैं? बाकी इतिहास दोबारा जाँचा जाएगा।':'Remove this paper trade? The remaining ledger will be replayed and validated.')) return;
+    const result=removePaperTrade(portfolio,tradeId);
+    if(!result.ok){setMessage(result.message);setMessageError(true);return;}
+    setPortfolio(result.portfolio);
+    setMessage(hi?'ट्रेड हटाया गया और पोर्टफोलियो दोबारा गणना हुआ।':'Trade removed and portfolio rebuilt successfully.');
+    setMessageError(false);
+  };
   const reset = () => {
     if(!window.confirm(hi?'क्या आप पूरा पेपर पोर्टफोलियो रीसेट करना चाहते हैं?':'Reset the entire paper portfolio?')) return;
     setPortfolio(createPaperPortfolio(100000)!);
@@ -102,7 +111,7 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
     <div className="panel paper-history"><div className="panel-title"><div><span className="eyebrow muted">{hi?'ऑर्डर लॉग':'ORDER LOG'}</span><h3>{hi?'पेपर ट्रेड इतिहास':'Paper trade history'}</h3></div><button className="secondary" disabled={portfolio.trades.length===0} onClick={()=>downloadPaperTradesCsv(portfolio.trades)}>{hi?'CSV डाउनलोड':'Export CSV'}</button></div>
       <div className="paper-backup-actions"><button className="secondary" onClick={exportBackup}>{hi?'JSON बैकअप डाउनलोड':'Download JSON backup'}</button><button className="secondary" onClick={()=>backupInput?.click()}>{hi?'JSON बैकअप चुनें':'Choose JSON backup'}</button><input ref={setBackupInput} type="file" accept="application/json,.json" hidden onChange={e=>{void selectBackup(e.target.files?.[0]);}} /></div>
       {restorePreview&&<div className="paper-warning"><span>{hi?'बैकअप पूर्वावलोकन':'Backup preview'}: {restorePreview.trades.length} {hi?'ट्रेड':'trades'}, {Object.keys(restorePreview.positions).length} {hi?'होल्डिंग':'holdings'}, {money(restorePreview.cash)} {hi?'वर्चुअल कैश':'virtual cash'}.</span><button className="primary" onClick={confirmRestore}>{hi?'Restore की पुष्टि करें':'Confirm restore'}</button><button className="secondary" onClick={()=>setRestorePreview(null)}>{hi?'रद्द':'Cancel'}</button></div>}
-      {portfolio.trades.length===0?<div className="empty">{hi?'आपके पेपर ऑर्डर यहाँ दिखाई देंगे।':'Your paper orders will appear here.'}</div>:<div className="table-wrap"><table><thead><tr><th>{hi?'समय':'Time'}</th><th>{hi?'सिंबल':'Symbol'}</th><th>{hi?'प्रकार':'Side'}</th><th>{hi?'मात्रा':'Qty'}</th><th>{hi?'कीमत':'Price'}</th><th>{hi?'मूल्य':'Value'}</th></tr></thead><tbody>{[...portfolio.trades].reverse().map(t=><tr key={t.id}><td>{new Date(t.executedAt).toLocaleString()}</td><td><b>{t.symbol}</b></td><td><span className={t.side==='BUY'?'paper-buy':'paper-sell'}>{t.side}</span></td><td>{t.quantity}</td><td>{money(t.price)}</td><td>{money(t.grossValue)}</td></tr>)}</tbody></table></div>}
+      {portfolio.trades.length===0?<div className="empty">{hi?'आपके पेपर ऑर्डर यहाँ दिखाई देंगे।':'Your paper orders will appear here.'}</div>:<div className="table-wrap"><table><thead><tr><th>{hi?'समय':'Time'}</th><th>{hi?'सिंबल':'Symbol'}</th><th>{hi?'प्रकार':'Side'}</th><th>{hi?'मात्रा':'Qty'}</th><th>{hi?'कीमत':'Price'}</th><th>{hi?'मूल्य':'Value'}</th><th>{hi?'कार्रवाई':'Action'}</th></tr></thead><tbody>{[...portfolio.trades].reverse().map(t=><tr key={t.id}><td>{new Date(t.executedAt).toLocaleString()}</td><td><b>{t.symbol}</b></td><td><span className={t.side==='BUY'?'paper-buy':'paper-sell'}>{t.side}</span></td><td>{t.quantity}</td><td>{money(t.price)}</td><td>{money(t.grossValue)}</td><td><button className="secondary paper-delete-trade" onClick={()=>deleteTrade(t.id)}>{hi?'हटाएँ':'Remove'}</button></td></tr>)}</tbody></table></div>}
     </div>
   </section>;
 }
