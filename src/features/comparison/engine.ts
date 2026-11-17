@@ -7,7 +7,8 @@ export function buildComparison(companies: readonly ComparisonCompany[], metrics
   return metrics.map(metric => {
     const chosen = companies.map(company => {
       const observation = company.observations.filter(item => item.metricKey === metric && item.periodType === periodType)
-        .sort((a,b) => b.periodEnd.localeCompare(a.periodEnd) || b.sourceRetrievedAt.localeCompare(a.sourceRetrievedAt))[0];
+        .sort((a,b) => Number(b.status === 'VERIFIED') - Number(a.status === 'VERIFIED') ||
+          b.periodEnd.localeCompare(a.periodEnd) || b.sourceRetrievedAt.localeCompare(a.sourceRetrievedAt))[0];
       return { companyId: company.companyId, observation };
     });
     const periodEnds = new Set(chosen.map(item => item.observation?.periodEnd).filter((value): value is string => Boolean(value)));
