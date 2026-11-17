@@ -27,6 +27,8 @@ export interface ScreenerOptions {
   sortBy?: MetricKey;
   sortDirection?: 'ASC' | 'DESC';
   includeUnverifiedIdentity?: boolean;
+  /** Demo-only: allow clearly-labelled illustrative observations in sort controls. */
+  includeUnverifiedValuesForSort?: boolean;
 }
 export interface ScreenerResult {
   rows: ScreenerRow[];
@@ -86,7 +88,7 @@ export function runScreener(rows: ScreenerRow[], options: ScreenerOptions): Scre
   const direction = options.sortDirection === 'ASC' ? 1 : -1;
   if (options.sortBy) {
     filtered.sort((a, b) => {
-      const sortRule: ScreenerRule = { metric: options.sortBy!, operator: 'GT', periods: undefined, verifiedOnly: true };
+      const sortRule: ScreenerRule = { metric: options.sortBy!, operator: 'GT', periods: undefined, verifiedOnly: !options.includeUnverifiedValuesForSort };
       const av = latestObservation(a.observations, sortRule)?.value;
       const bv = latestObservation(b.observations, sortRule)?.value;
       if (av == null) return bv == null ? a.company.name.localeCompare(b.company.name) : 1;
