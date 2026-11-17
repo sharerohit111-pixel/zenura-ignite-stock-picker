@@ -39,7 +39,7 @@ function latestObservation(items: MetricObservation[], rule: ScreenerRule): Metr
   return items
     .filter(item => item.metricKey === rule.metric)
     .filter(item => !rule.periods?.length || rule.periods.includes(item.periodType))
-    .filter(item => !rule.verifiedOnly || item.status === 'VERIFIED')
+    .filter(item => rule.operator === 'IS_MISSING' || !rule.verifiedOnly || item.status === 'VERIFIED')
     .sort((a, b) => Date.parse(b.periodEnd) - Date.parse(a.periodEnd))[0];
 }
 
@@ -84,8 +84,9 @@ export function runScreener(rows: ScreenerRow[], options: ScreenerOptions): Scre
   const direction = options.sortDirection === 'ASC' ? 1 : -1;
   if (options.sortBy) {
     filtered.sort((a, b) => {
-      const av = latestObservation(a.observations, { metric: options.sortBy!, operator: 'IS_MISSING' })?.value;
-      const bv = latestObservation(b.observations, { metric: options.sortBy!, operator: 'IS_MISSING' })?.value;
+      const sortRule: ScreenerRule = { metric: options.sortBy!, operator: 'GT', periods: undefined, verifiedOnly: true };
+      const av = latestObservation(a.observations, sortRule)?.value;
+      const bv = latestObservation(b.observations, sortRule)?.value;
       if (av == null) return bv == null ? a.company.name.localeCompare(b.company.name) : 1;
       if (bv == null) return -1;
       return (av - bv) * direction;
