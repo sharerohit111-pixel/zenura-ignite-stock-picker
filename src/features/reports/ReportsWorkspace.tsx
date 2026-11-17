@@ -7,7 +7,7 @@ export default function ReportsWorkspace({language='EN'}:{language?:'EN'|'HI'}) 
   const [company, setCompany] = useState('');
   const [purpose, setPurpose] = useState('Fundamental research and valuation review');
   const [notes, setNotes] = useState('');
-  const generatedAt = useMemo(() => new Date().toLocaleString(language === 'HI' ? 'hi-IN' : 'en-IN', { dateStyle: 'medium', timeStyle: 'short' }), []);
+  const generatedAt = useMemo(() => new Date().toLocaleString(language === 'HI' ? 'hi-IN' : 'en-IN', { dateStyle: 'medium', timeStyle: 'short' }), [language]);
   const hi = language === 'HI';
 
   return <section className="workspace-page reports-workspace">
