@@ -202,3 +202,29 @@ body { overflow-x:hidden; }
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
 }
+
+/* v0.6.1: robust tablet/mobile canvas sizing (including Android desktop-width viewports) */
+@media (max-width: 1024px) {
+  html, body, #root { width:100% !important; max-width:100% !important; overflow-x:hidden; }
+  .shell { display:block !important; width:100% !important; max-width:100% !important; min-width:0 !important; }
+  .sidebar { display:flex; position:fixed; z-index:30; left:0; top:0; bottom:0; width:min(280px,86vw); transform:translateX(-110%); }
+  .sidebar.mobile-open { transform:translateX(0); }
+  .main { display:block; width:100% !important; max-width:none !important; min-width:0 !important; margin:0 !important; padding-left:clamp(14px,3vw,24px) !important; padding-right:clamp(14px,3vw,24px) !important; }
+  .mobile-menu { display:grid !important; }
+  .mobile-close { display:grid !important; }
+  .welcome { display:block !important; width:100% !important; max-width:none !important; min-width:0 !important; margin-left:0 !important; margin-right:0 !important; }
+  .welcome > div:first-child { width:100%; min-width:0; }
+  .orb-wrap { display:none !important; }
+  .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .commodity-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+}
+@media (max-width: 560px) {
+  .quick-grid, .commodity-grid, .bottom-grid { grid-template-columns:minmax(0,1fr) !important; }
+  .welcome-actions { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .welcome-actions > * { min-width:0; max-width:100%; white-space:normal; }
+  .topbar { gap:8px; }
+  .top-actions { min-width:0; gap:6px; }
+  .global-search { min-width:0 !important; width:auto !important; flex:1 1 0; }
+  .global-search input { min-width:0; }
+  .section-head { align-items:flex-start; gap:10px; }
+}
