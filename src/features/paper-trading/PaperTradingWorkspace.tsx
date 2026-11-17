@@ -5,7 +5,7 @@ import { removePaperTrade } from './ledger';
 import { filterPaperTradesByDate } from './history';
 import { downloadPaperTradesCsv } from './export';
 import { calculatePaperTradingAnalytics } from './analytics';
-import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup } from './backup';
+import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup, validatePaperPortfolioBackup, PAPER_BACKUP_FORMAT, PAPER_BACKUP_VERSION } from './backup';
 import './paper-trading.css';
 
 const STORAGE_KEY = 'zi-paper-portfolio-v1';
@@ -15,11 +15,13 @@ const loadPortfolio = ():PaperPortfolio => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const value:unknown = JSON.parse(raw);
-      if (value && typeof value === 'object') {
-        const p = value as PaperPortfolio;
-        if (Number.isFinite(p.initialCash) && p.initialCash > 0 && Number.isFinite(p.cash) &&
-            p.positions && typeof p.positions === 'object' && Array.isArray(p.trades)) return p;
-      }
+      const checked = validatePaperPortfolioBackup({
+        format: PAPER_BACKUP_FORMAT,
+        version: PAPER_BACKUP_VERSION,
+        exportedAt: new Date().toISOString(),
+        portfolio: value
+      });
+      if (checked.ok) return checked.backup.portfolio;
     }
   } catch {}
   return createPaperPortfolio(100000)!;
