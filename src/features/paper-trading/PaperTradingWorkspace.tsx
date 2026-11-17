@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, RotateCcw, ShieldAlert, Wallet } from 'lucide-react';
 import { createPaperPortfolio, placePaperOrder, valuePaperPortfolio, type PaperPortfolio } from './engine';
 import { removePaperTrade } from './ledger';
+import { filterPaperTradesByDate } from './history';
 import { downloadPaperTradesCsv } from './export';
 import { calculatePaperTradingAnalytics } from './analytics';
 import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup } from './backup';
@@ -34,10 +35,14 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
   const [message,setMessage] = useState('');
   const [messageError,setMessageError] = useState(false);
   const [restorePreview,setRestorePreview] = useState<PaperPortfolio | null>(null);
+  const [historyFrom,setHistoryFrom] = useState('');
+  const [historyTo,setHistoryTo] = useState('');
   const [backupInput,setBackupInput] = useState<HTMLInputElement | null>(null);
   useEffect(()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(portfolio));}catch{setMessage(hi?'इस डिवाइस पर सेव नहीं हो पाया।':'Could not save on this device.');setMessageError(true);}},[portfolio,hi]);
   const valuation = useMemo(()=>valuePaperPortfolio(portfolio,{}),[portfolio]);
   const analytics = useMemo(()=>calculatePaperTradingAnalytics(portfolio.trades),[portfolio.trades]);
+  const filteredTrades = useMemo(()=>filterPaperTradesByDate(portfolio.trades,{from:historyFrom,to:historyTo}),[portfolio.trades,historyFrom,historyTo]);
+  const invalidDateRange = Boolean(historyFrom && historyTo && historyFrom>historyTo);
   const positions = Object.values(portfolio.positions);
   const submit = () => {
     const result = placePaperOrder(portfolio,{symbol,side,quantity:Number(quantity),price:Number(price)});
@@ -108,10 +113,11 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
         <p className="panel-copy">{hi?'होल्डिंग का वर्तमान बाजार मूल्य तब तक नहीं दिखेगा जब तक सत्यापित कीमत स्रोत कनेक्ट न हो।':'Current market value and profit/loss remain unavailable until a verified price source is connected.'}</p>
       </div>
     </div>
-    <div className="panel paper-history"><div className="panel-title"><div><span className="eyebrow muted">{hi?'ऑर्डर लॉग':'ORDER LOG'}</span><h3>{hi?'पेपर ट्रेड इतिहास':'Paper trade history'}</h3></div><button className="secondary" disabled={portfolio.trades.length===0} onClick={()=>downloadPaperTradesCsv(portfolio.trades)}>{hi?'CSV डाउनलोड':'Export CSV'}</button></div>
+    <div className="panel paper-history"><div className="panel-title"><div><span className="eyebrow muted">{hi?'ऑर्डर लॉग':'ORDER LOG'}</span><h3>{hi?'पेपर ट्रेड इतिहास':'Paper trade history'}</h3></div><button className="secondary" disabled={filteredTrades.length===0} onClick={()=>downloadPaperTradesCsv(filteredTrades)}>{hi?'CSV डाउनलोड':'Export filtered CSV'}</button></div>
+      <div className="paper-history-filters"><label>{hi?'शुरुआत की तारीख':'From date'}<input type="date" value={historyFrom} onChange={e=>setHistoryFrom(e.target.value)}/></label><label>{hi?'अंतिम तारीख':'To date'}<input type="date" value={historyTo} onChange={e=>setHistoryTo(e.target.value)}/></label><button className="secondary" onClick={()=>{setHistoryFrom('');setHistoryTo('');}}>{hi?'फ़िल्टर हटाएँ':'Clear filter'}</button><span>{invalidDateRange?(hi?'तारीख सीमा गलत है':'Invalid date range'):(hi?'दिखाए गए ट्रेड':'Trades shown')+': '+filteredTrades.length}</span></div>
       <div className="paper-backup-actions"><button className="secondary" onClick={exportBackup}>{hi?'JSON बैकअप डाउनलोड':'Download JSON backup'}</button><button className="secondary" onClick={()=>backupInput?.click()}>{hi?'JSON बैकअप चुनें':'Choose JSON backup'}</button><input ref={setBackupInput} type="file" accept="application/json,.json" hidden onChange={e=>{void selectBackup(e.target.files?.[0]);}} /></div>
       {restorePreview&&<div className="paper-warning"><span>{hi?'बैकअप पूर्वावलोकन':'Backup preview'}: {restorePreview.trades.length} {hi?'ट्रेड':'trades'}, {Object.keys(restorePreview.positions).length} {hi?'होल्डिंग':'holdings'}, {money(restorePreview.cash)} {hi?'वर्चुअल कैश':'virtual cash'}.</span><button className="primary" onClick={confirmRestore}>{hi?'Restore की पुष्टि करें':'Confirm restore'}</button><button className="secondary" onClick={()=>setRestorePreview(null)}>{hi?'रद्द':'Cancel'}</button></div>}
-      {portfolio.trades.length===0?<div className="empty">{hi?'आपके पेपर ऑर्डर यहाँ दिखाई देंगे।':'Your paper orders will appear here.'}</div>:<div className="table-wrap"><table><thead><tr><th>{hi?'समय':'Time'}</th><th>{hi?'सिंबल':'Symbol'}</th><th>{hi?'प्रकार':'Side'}</th><th>{hi?'मात्रा':'Qty'}</th><th>{hi?'कीमत':'Price'}</th><th>{hi?'मूल्य':'Value'}</th><th>{hi?'कार्रवाई':'Action'}</th></tr></thead><tbody>{[...portfolio.trades].reverse().map(t=><tr key={t.id}><td>{new Date(t.executedAt).toLocaleString()}</td><td><b>{t.symbol}</b></td><td><span className={t.side==='BUY'?'paper-buy':'paper-sell'}>{t.side}</span></td><td>{t.quantity}</td><td>{money(t.price)}</td><td>{money(t.grossValue)}</td><td><button className="secondary paper-delete-trade" onClick={()=>deleteTrade(t.id)}>{hi?'हटाएँ':'Remove'}</button></td></tr>)}</tbody></table></div>}
+      {filteredTrades.length===0?<div className="empty">{portfolio.trades.length===0?(hi?'आपके पेपर ऑर्डर यहाँ दिखाई देंगे।':'Your paper orders will appear here.'):(hi?'इस तारीख सीमा में कोई ट्रेड नहीं मिला।':'No trades found in this date range.')}</div>:<div className="table-wrap"><table><thead><tr><th>{hi?'समय':'Time'}</th><th>{hi?'सिंबल':'Symbol'}</th><th>{hi?'प्रकार':'Side'}</th><th>{hi?'मात्रा':'Qty'}</th><th>{hi?'कीमत':'Price'}</th><th>{hi?'मूल्य':'Value'}</th><th>{hi?'कार्रवाई':'Action'}</th></tr></thead><tbody>{[...filteredTrades].reverse().map(t=><tr key={t.id}><td>{new Date(t.executedAt).toLocaleString()}</td><td><b>{t.symbol}</b></td><td><span className={t.side==='BUY'?'paper-buy':'paper-sell'}>{t.side}</span></td><td>{t.quantity}</td><td>{money(t.price)}</td><td>{money(t.grossValue)}</td><td><button className="secondary paper-delete-trade" onClick={()=>deleteTrade(t.id)}>{hi?'हटाएँ':'Remove'}</button></td></tr>)}</tbody></table></div>}
     </div>
   </section>;
 }
