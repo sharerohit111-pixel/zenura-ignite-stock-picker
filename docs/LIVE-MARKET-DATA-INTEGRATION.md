@@ -68,3 +68,20 @@ Request a written proposal for a multi-user app with paper-trading simulation an
 5. Commercial minimum fees, per-user/exchange fees, usage caps and GST.
 6. Required exchange agreements, attribution, audit, caching and retention rules.
 7. Whether a sandbox/trial can be used for this exact multi-user simulation use case.
+
+## Critical NSE restriction for this product
+
+The NSE Data Sharing & Usage Policy page, updated 11 December 2025, states that Market Data must not be provided to individuals, entities, platforms, apps or websites engaging in online gaming, virtual trading, simulation, fantasy games, or similar activities. The policy definition of Market Data includes live, snapshot, delayed, end-of-day, historical and corporate data. This is a product-level compliance blocker for using NSE-sourced data in ZENURA IGNITE while it includes paper trading/simulation; a normal vendor subscription or a Premium paywall does not override it.
+
+Accordingly:
+- Do not integrate NSE-sourced live, delayed, historical or corporate data into the paper-trading/simulation product on the assumption that a vendor subscription is sufficient.
+- Do not rely on personal broker API terms; Shoonya's published API terms also prohibit use of its live data for virtual/mock trading apps.
+- Keep the quote adapter fail-closed and the liveMarketData entitlement disabled.
+- Before any exchange-sourced feed is considered, obtain written, product-specific guidance from the relevant exchange and provider describing the exact app functions, user audience and data use. Do not treat a generic sales quote or trial key as permission.
+- Investigate BSE and MCX separately; do not assume NSE policy or vendor permission covers other exchanges.
+
+### Safe development direction while approval is unresolved
+
+Keep the paper-trading simulator operating on clearly labelled synthetic scenario data (generated locally or by a server, not copied from live exchange feeds). Keep real-market research/quote functionality isolated from simulation and disabled until the exchange/provider confirms in writing that the proposed product separation and use are permitted. Historical/replay data must not be assumed exempt: it is included in the policy's Market Data definition.
+
+This is a compliance-oriented engineering gate, not legal advice.
