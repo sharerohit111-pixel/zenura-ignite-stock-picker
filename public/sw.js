@@ -1,5 +1,5 @@
 const BASE = self.registration.scope;
-const CACHE = 'zenura-stock-picker-shell-v3';
+const CACHE = 'zenura-stock-picker-shell-v4';
 const CORE = ['.', 'index.html', 'manifest.webmanifest', 'icons/icon.svg'].map(path => new URL(path, BASE).toString());
 
 self.addEventListener('install', event => {
@@ -18,13 +18,25 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin || !requestUrl.href.startsWith(BASE)) return;
-  event.respondWith(fetch(event.request).then(response => {
-    if (response.ok) {
-      const copy = response.clone();
-      caches.open(CACHE).then(cache => cache.put(event.request, copy));
+  event.respondWith((async () => {
+    try {
+      const response = await fetch(event.request);
+      if (response && response.ok && response.type === 'basic') {
+        const copy = response.clone();
+        event.waitUntil(
+          caches.open(CACHE)
+            .then(cache => cache.put(event.request, copy))
+            .catch(() => undefined)
+        );
+      }
+      return response;
+    } catch {
+      const cached = await caches.match(event.request);
+      if (cached) return cached;
+      if (event.request.mode === 'navigate') {
+        return (await caches.match(new URL('index.html', BASE).toString())) || Response.error();
+      }
+      return Response.error();
     }
-    return response;
-  }).catch(() => caches.match(event.request).then(cached =>
-    cached || (event.request.mode === 'navigate' ? caches.match(new URL('index.html', BASE).toString()) : undefined)
-  )));
+  })());
 });
