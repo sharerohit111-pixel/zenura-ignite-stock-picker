@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createPaperPortfolio, placePaperOrder } from './engine';
-import { createPaperPortfolioBackup, PAPER_BACKUP_FORMAT, PAPER_BACKUP_VERSION } from './backup';
+import { createPaperPortfolioBackup } from './backup';
 import { loadPaperPortfolio, PAPER_PORTFOLIO_STORAGE_KEY, PAPER_PORTFOLIO_RECOVERY_KEY } from './storage';
 
 function memoryStorage(initial: Record<string,string> = {}) {
