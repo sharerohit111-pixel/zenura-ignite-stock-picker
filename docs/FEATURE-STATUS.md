@@ -42,7 +42,7 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 | Security | Authentication, authorization, audit and API security | Blocked | Architecture plan documented; provider/hosting decisions and implementation remain |
 | Backend | Provider ingestion, API, cache and monitoring | Blocked | Static GitHub Pages cannot safely store provider secrets |
 | Monetization | Ads and subscriptions | Disabled by design | Must remain disabled for initial release |
-| Release | CI tests, type-check, build | Automated tests passing | Paper-trading backup and raw recovery-copy validation are covered by Vitest; latest main commit must pass CI before release |
+| Release | CI tests, type-check, build | Automated tests passing | Commit 8aa4df6 passed Vitest, TypeScript type-check and production build in GitHub Actions on 17 Nov 2026 |
 | Release | GitHub Pages deployment | Live | Latest verified main deployment succeeded on 17 Nov 2026; subsequent commits are subject to their own deployment run |
 | Release | Android Chrome/iOS Safari, offline/PWA and accessibility QA | Pending | Requires physical-device/browser verification |
 
