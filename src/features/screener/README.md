@@ -1,6 +1,11 @@
 # Fundamental Screener
 
-Owns filter-builder UI, filter validation, saved-screen contracts, and result presentation. Must not own provider credentials or directly fetch a third-party provider from the browser.
+Owns provider-neutral filter evaluation and saved-screen contracts. It must not own provider credentials or directly fetch a third-party provider from the browser.
+
+## Current implementation status
+- The filtering engine and its automated tests are implemented.
+- A complete filter-builder and results UI is not present in this module yet; do not describe the Screener as a finished user-facing workflow.
+- No live market data is fetched. The engine only evaluates observations supplied by the application.
 
 ## Engine (`engine.ts`)
 - Pure provider-neutral filtering for any of the 60+ `MetricKey` values.
