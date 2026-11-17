@@ -37,13 +37,16 @@ export function validatePaperPortfolioBackup(input: unknown): PaperBackupResult 
     return { ok:false, reason:'INVALID_DATA', message:'Portfolio values or trade history are invalid.' };
   let rebuilt = createPaperPortfolio(Number(raw.initialCash));
   if (!rebuilt) return { ok:false, reason:'INVALID_DATA', message:'Initial virtual cash is invalid.' };
+  const tradeIds = new Set<string>();
   for (const item of raw.trades) {
-    if (!record(item) || typeof item.id !== 'string' || item.id.length > 128 ||
+    if (!record(item) || typeof item.id !== 'string' || item.id.trim().length === 0 ||
+        item.id.length > 128 || tradeIds.has(item.id) ||
         typeof item.symbol !== 'string' || typeof item.executedAt !== 'string' ||
         (item.side !== 'BUY' && item.side !== 'SELL') ||
         !Number.isSafeInteger(item.quantity) || Number(item.quantity) <= 0 ||
         !Number.isFinite(item.price) || Number(item.price) <= 0 || !Number.isFinite(item.grossValue))
       return { ok:false, reason:'INVALID_DATA', message:'A trade contains invalid fields.' };
+    tradeIds.add(item.id);
     const result = placePaperOrder(rebuilt, {
       id:item.id, symbol:item.symbol, side:item.side, quantity:Number(item.quantity),
       price:Number(item.price), executedAt:item.executedAt
