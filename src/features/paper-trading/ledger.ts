@@ -18,13 +18,36 @@ export function removePaperTrade(current:PaperPortfolio, tradeId:string):RemoveP
       !current.positions || typeof current.positions!=='object')
     return {ok:false,reason:'INVALID_LEDGER',message:'The current portfolio is invalid; history was not changed.'};
 
-  let rebuilt=createPaperPortfolio(current.initialCash);
-  if (!rebuilt) return {ok:false,reason:'INVALID_LEDGER',message:'The starting balance is invalid.'};
+  let verified=createPaperPortfolio(current.initialCash);
+  if (!verified) return {ok:false,reason:'INVALID_LEDGER',message:'The starting balance is invalid.'};
   const ids=new Set<string>();
   for (const trade of current.trades) {
     if (!trade || typeof trade.id!=='string' || ids.has(trade.id))
       return {ok:false,reason:'DUPLICATE_TRADE_ID',message:'Trade IDs are missing or duplicated; history was not changed.'};
     ids.add(trade.id);
+    const result=placePaperOrder(verified,{
+      id:trade.id,symbol:trade.symbol,side:trade.side,quantity:trade.quantity,
+      price:trade.price,executedAt:trade.executedAt
+    });
+    if (!result.ok || !close(result.trade.grossValue,trade.grossValue))
+      return {ok:false,reason:'INVALID_LEDGER',message:'The saved trade history is inconsistent. Nothing was changed.'};
+    verified=result.portfolio;
+  }
+  if (!close(verified.cash,current.cash))
+    return {ok:false,reason:'INVALID_LEDGER',message:'Current cash does not match the saved trade history. Nothing was changed.'};
+  const currentKeys=Object.keys(current.positions).sort();
+  const verifiedKeys=Object.keys(verified.positions).sort();
+  if (JSON.stringify(currentKeys)!==JSON.stringify(verifiedKeys))
+    return {ok:false,reason:'INVALID_LEDGER',message:'Current holdings do not match the saved trade history. Nothing was changed.'};
+  for (const key of verifiedKeys) {
+    const actual=current.positions[key];
+    const expected=verified.positions[key];
+    if (!actual || actual.symbol!==expected.symbol || actual.quantity!==expected.quantity ||
+        !Number.isFinite(actual.averageCost) || !close(actual.averageCost,expected.averageCost))
+      return {ok:false,reason:'INVALID_LEDGER',message:'Current holdings do not match the saved trade history. Nothing was changed.'};
+  }
+  let rebuilt=createPaperPortfolio(current.initialCash)!;
+  for (const trade of current.trades) {
     if (trade.id===tradeId) continue;
     const result=placePaperOrder(rebuilt,{
       id:trade.id,symbol:trade.symbol,side:trade.side,quantity:trade.quantity,
@@ -33,19 +56,6 @@ export function removePaperTrade(current:PaperPortfolio, tradeId:string):RemoveP
     if (!result.ok || !close(result.trade.grossValue,trade.grossValue))
       return {ok:false,reason:'INVALID_LEDGER',message:'Removing this trade would leave an impossible or inconsistent history. Nothing was changed.'};
     rebuilt=result.portfolio;
-  }
-  if (!close(rebuilt.cash,current.cash))
-    return {ok:false,reason:'INVALID_LEDGER',message:'Current cash does not match the saved trade history. Nothing was changed.'};
-  const currentKeys=Object.keys(current.positions).sort();
-  const rebuiltKeys=Object.keys(rebuilt.positions).sort();
-  if (JSON.stringify(currentKeys)!==JSON.stringify(rebuiltKeys))
-    return {ok:false,reason:'INVALID_LEDGER',message:'Current holdings do not match the saved trade history. Nothing was changed.'};
-  for (const key of rebuiltKeys) {
-    const actual=current.positions[key];
-    const expected=rebuilt.positions[key];
-    if (!actual || actual.symbol!==expected.symbol || actual.quantity!==expected.quantity ||
-        !Number.isFinite(actual.averageCost) || !close(actual.averageCost,expected.averageCost))
-      return {ok:false,reason:'INVALID_LEDGER',message:'Current holdings do not match the saved trade history. Nothing was changed.'};
   }
   return {ok:true,portfolio:rebuilt};
 }
