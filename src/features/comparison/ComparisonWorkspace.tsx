@@ -4,7 +4,7 @@ import type { MetricKey, MetricObservation, PeriodType } from '../../platform/da
 import './research-workspaces.css';
 const companies=[{id:'DEMO1',name:'Sample Industries Ltd.'},{id:'DEMO2',name:'Illustrative Consumer Co.'},{id:'DEMO3',name:'Example Engineering Ltd.'},{id:'DEMO4',name:'Placeholder Healthcare Ltd.'},{id:'DEMO5',name:'Demo Technology Ltd.'}];
 const metrics:MetricKey[]=['REVENUE','PAT','ROE','ROCE','DEBT_TO_EQUITY','FREE_CASH_FLOW','PE','PB'];
-const labels:Record<MetricKey,string>={REVENUE:'Revenue',PAT:'Profit after tax',ROE:'Return on equity',ROCE:'Return on capital employed',DEBT_TO_EQUITY:'Debt / equity',FREE_CASH_FLOW:'Free cash flow',PE:'P/E',PB:'P/B'};
+const labels:Partial<Record<MetricKey,string>>={REVENUE:'Revenue',PAT:'Profit after tax',ROE:'Return on equity',ROCE:'Return on capital employed',DEBT_TO_EQUITY:'Debt / equity',FREE_CASH_FLOW:'Free cash flow',PE:'P/E',PB:'P/B'};
 export default function ComparisonWorkspace(){
  const [selected,setSelected]=useState<string[]>(['DEMO1','DEMO2']);
  const [period,setPeriod]=useState<PeriodType>('ANNUAL');
