@@ -42,3 +42,23 @@ Status meanings: Pending · In Development · Completed · Tested · Live.
 
 ### Company search-to-research navigation (v0.5.6)
 Global search results for illustrative companies now open Company Research with that company identity selected. The Research workspace also has a company selector, and the illustrative profile modal can open the same workspace. This is navigation/context only: no exchange listing is verified and no financial observations are fabricated. Full React/Vite build and browser QA remain pending because dependencies are unavailable in this environment.
+
+
+## Engineering milestone — 17 Nov 2026
+
+- Added a provider-neutral FCFF DCF calculation engine with input validation, explicit net-debt bridge, per-share output and sensitivity caveats: `src/features/valuation/engine.ts`.
+- Added an explainable six-factor score aggregator with coverage disclosure and score withholding below the configured coverage threshold: `src/features/quality-score/engine.ts`.
+- Added a period-safe comparison engine. It only marks values comparable when the requested period type and period end align and all selected observations are verified: `src/features/comparison/engine.ts`.
+- These are calculation/domain engines, not yet complete end-user screens. Their UI integration and automated unit tests remain open work.
+- The public app still uses an explicitly labelled illustrative demo universe for navigation and screener interaction. It is not an NSE/BSE company master and must not be treated as market research data.
+- Build and Pages deployment workflows have passed for prior UI commits. The latest comparison-engine commit is awaiting CI confirmation.
+
+## Release blockers (must not be represented as complete)
+
+1. Select and approve a licensed Indian equity market-data provider; configure secrets only after the provider account and terms are confirmed.
+2. Implement a secure backend ingestion/API layer, source registry, exchange master reconciliation, cache and monitoring. GitHub Pages alone is a static frontend and must not hold provider secrets.
+3. Integrate DCF, quality and comparison engines into reviewed UI flows; add automated unit tests and edge-case fixtures.
+4. Complete accessibility, Android Chrome/iOS Safari responsive QA, offline/PWA install tests, and stale-cache update tests.
+5. Implement authentication and user data sync only after backend/security design.
+
+Paper trading/investing, advertisements and paid subscriptions remain out of initial release scope or disabled as previously specified.
