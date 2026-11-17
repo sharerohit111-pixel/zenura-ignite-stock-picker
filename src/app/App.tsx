@@ -102,7 +102,7 @@ export default function App() {
     {metric:'PB',operator:'LTE',value:Number(maxPb||9999)},
     {metric:'DEBT_TO_EQUITY',operator:'LTE',value:Number(maxDebt||9999)}
   ],[minRoe,minRoce,maxPe,maxPb,maxDebt]);
-  const screenerResult = useMemo(()=>runScreener(demoRows,{rules:activeRules,search:query,sortBy:sortMetric==='NAME'?undefined:sortMetric,sortDirection,includeUnverifiedIdentity:true}),[demoRows,activeRules,query,sortMetric,sortDirection]);
+  const screenerResult = useMemo(()=>runScreener(demoRows,{rules:activeRules,search:query,sortBy:sortMetric==='NAME'?undefined:sortMetric,sortDirection,includeUnverifiedIdentity:true,includeUnverifiedValuesForSort:true}),[demoRows,activeRules,query,sortMetric,sortDirection]);
   const filtered = screenerResult.rows.map(row=>demoCompanies.find(c=>c.symbol===row.company.symbol)!).filter(Boolean);
 
   const toggleLanguage = () => setLanguage(prev => {
