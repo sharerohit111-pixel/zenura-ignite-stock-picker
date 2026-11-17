@@ -235,6 +235,7 @@ body { overflow-x:hidden; }
 .light-theme .results-panel td select,.light-theme .results-panel td textarea{background:#f3f7fb;color:#17334d;border-color:#cbd9e7}
 
 
+.custom-rule-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.custom-rule-heading .text-btn:disabled{opacity:.45;cursor:not-allowed}
 /* Advanced screener custom-rule builder */
 .custom-rule-builder{display:grid;gap:10px;margin-top:18px;padding:14px;border:1px solid rgba(85,190,225,.22);border-radius:12px;background:rgba(12,34,57,.48)}
 .custom-rule-builder>b{font-size:12px;letter-spacing:.04em;color:#9ddff3}
