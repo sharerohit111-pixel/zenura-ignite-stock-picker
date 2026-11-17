@@ -17,7 +17,7 @@ describe('paper portfolio JSON backup',()=>{
     const parsed=parsePaperPortfolioBackup(JSON.stringify(backup));
     expect(parsed.ok).toBe(true);
     if(parsed.ok) {
-      expect(parsed.backup.portfolio.cash).toBe(99040);
+      expect(parsed.backup.portfolio.cash).toBe(99240);
       expect(parsed.backup.portfolio.positions.TCS.quantity).toBe(8);
       expect(parsed.backup.portfolio.trades).toHaveLength(2);
     }
