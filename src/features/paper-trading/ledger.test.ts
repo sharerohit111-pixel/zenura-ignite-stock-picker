@@ -9,6 +9,8 @@ const order=(portfolio:ReturnType<typeof createPaperPortfolio>,id:string,side:'B
   return result.portfolio;
 };
 
+const reasonOf=(result:ReturnType<typeof removePaperTrade>)=>result.ok?'OK':result.reason;
+
 describe('validated paper trade removal',()=>{
   it('removes a trade and rebuilds cash and positions',()=>{
     let p=createPaperPortfolio(10000);
@@ -37,8 +39,8 @@ describe('validated paper trade removal',()=>{
     let p=createPaperPortfolio(10000);
     p=order(p,'same','BUY',2,100);
     const duplicate={...p!,trades:[...p!.trades,{...p!.trades[0]}]};
-    expect(removePaperTrade(duplicate,'same').reason).toBe('DUPLICATE_TRADE_ID');
-    expect(removePaperTrade({...p!,cash:1},'same').reason).toBe('INVALID_LEDGER');
+    expect(reasonOf(removePaperTrade(duplicate,'same'))).toBe('DUPLICATE_TRADE_ID');
+    expect(reasonOf(removePaperTrade({...p!,cash:1},'same'))).toBe('INVALID_LEDGER');
   });
   it('reports missing trade IDs',()=>{
     const p=createPaperPortfolio(1000)!;
