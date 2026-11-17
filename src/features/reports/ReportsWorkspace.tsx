@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { FileDown, ShieldCheck } from 'lucide-react';
 import './reports.css';
 
-export default function ReportsWorkspace() {
+export default function ReportsWorkspace({language='EN'}:{language?:'EN'|'HI'}) {
   const [title, setTitle] = useState('Equity Research Note');
   const [company, setCompany] = useState('');
   const [purpose, setPurpose] = useState('Fundamental research and valuation review');
@@ -10,8 +10,8 @@ export default function ReportsWorkspace() {
   const generatedAt = useMemo(() => new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }), []);
 
   return <section className="workspace-page reports-workspace">
-    <div className="page-heading"><div><div className="eyebrow muted">RESEARCH DOCUMENTS</div><h1>Research Reports</h1><p>Create a structured, printable research note from your own verified research inputs.</p></div><button className="primary" onClick={() => window.print()}><FileDown size={17}/> Print / Save PDF</button></div>
-    <div className="market-disclaimer"><b>Report builder — no market data is connected.</b> This report does not fetch or invent company figures. Add only verified inputs and attach source references in your notes before relying on the document.</div>
+    <div className="page-heading"><div><div className="eyebrow muted">{language==='HI'?'रिसर्च दस्तावेज़':'RESEARCH DOCUMENTS'}</div><h1>{language==='HI'?'रिसर्च रिपोर्ट':'Research Reports'}</h1><p>{language==='HI'?'अपने सत्यापित रिसर्च इनपुट से व्यवस्थित, प्रिंट योग्य रिसर्च नोट बनाएं।':'Create a structured, printable research note from your own verified research inputs.'}</p></div><button className="primary" onClick={() => window.print()}><FileDown size={17}/> {language==='HI'?'प्रिंट / PDF सेव करें':'Print / Save PDF'}</button></div>
+    <div className="market-disclaimer"><b>{language==='HI'?'रिपोर्ट बिल्डर — मार्केट डेटा कनेक्ट नहीं है।':'Report builder — no market data is connected.'}</b> This report does not fetch or invent company figures. Add only verified inputs and attach source references in your notes before relying on the document.</div>
     <div className="panel report-editor">
       <label>Report title<input value={title} onChange={e=>setTitle(e.target.value)} maxLength={100}/></label>
       <label>Company / security<input value={company} onChange={e=>setCompany(e.target.value)} placeholder="Enter verified legal company name and symbol" maxLength={120}/></label>
