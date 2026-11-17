@@ -13,6 +13,7 @@ import ComparisonWorkspace from '../features/comparison/ComparisonWorkspace';
 import QualityWorkspace from '../features/quality-score/QualityWorkspace';
 import ReportsWorkspace from '../features/reports/ReportsWorkspace';
 import { exportWatchlistCsv } from '../features/watchlist/export';
+import { createLocalWatchlistRepository, type WatchlistResearch } from '../features/watchlist/storage';
 
 type Company = { symbol:string; name:string; sector:string; roe:number; roce:number; pe:number; pb:number; debt:number; sales:number; profit:number; };
 const demoCompanies: Company[] = [
@@ -66,35 +67,16 @@ export default function App() {
   const [screenName,setScreenName] = useState('');
   const [sortMetric,setSortMetric] = useState<MetricKey|'NAME'>('NAME');
   const [sortDirection,setSortDirection] = useState<'ASC'|'DESC'>('DESC');
-  const [watchlist,setWatchlist] = useState<string[]>(() => {
-    try {
-      const parsed: unknown = JSON.parse(localStorage.getItem('zi-watchlist') || '[]');
-      if (!Array.isArray(parsed)) return [];
-      return [...new Set(parsed.filter((symbol): symbol is string =>
-        typeof symbol === 'string' && demoCompanies.some(company => company.symbol === symbol)
-      ))];
-    } catch { return []; }
-  });
-  type WatchlistResearch = { status:'To review'|'Researching'|'Completed'; notes:string };
-  const [watchlistResearch,setWatchlistResearch] = useState<Record<string,WatchlistResearch>>(() => {
-    try {
-      const parsed: unknown = JSON.parse(localStorage.getItem('zi-watchlist-research') || '{}');
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-      return Object.fromEntries(Object.entries(parsed).flatMap(([symbol, value]) => {
-        if (!demoCompanies.some(company => company.symbol === symbol) || !value || typeof value !== 'object') return [];
-        const item = value as Record<string, unknown>;
-        const status = item.status === 'Researching' || item.status === 'Completed' ? item.status : 'To review';
-        const notes = typeof item.notes === 'string' ? item.notes.slice(0, 5000) : '';
-        return [[symbol, { status, notes }]];
-      })) as Record<string,WatchlistResearch>;
-    } catch { return {}; }
-  });
+  const allowedWatchlistSymbols = demoCompanies.map(company => company.symbol);
+  const watchlistRepository = createLocalWatchlistRepository();
+  const [watchlist,setWatchlist] = useState<string[]>(() => watchlistRepository?.loadSymbols(allowedWatchlistSymbols) ?? []);
+  const [watchlistResearch,setWatchlistResearch] = useState<Record<string,WatchlistResearch>>(() => watchlistRepository?.loadResearch(allowedWatchlistSymbols) ?? {});
   const updateWatchlistResearch = (symbol:string, patch:Partial<WatchlistResearch>) => {
-    if (!demoCompanies.some(company => company.symbol === symbol)) return;
+    if (!allowedWatchlistSymbols.includes(symbol)) return;
     setWatchlistResearch(prev => {
       const next = {...prev,[symbol]:{status:prev[symbol]?.status || 'To review',notes:prev[symbol]?.notes || '',...patch}};
       next[symbol].notes = next[symbol].notes.slice(0, 5000);
-      try { localStorage.setItem('zi-watchlist-research',JSON.stringify(next)); } catch {}
+      watchlistRepository?.saveResearch(next,allowedWatchlistSymbols);
       return next;
     });
   };
@@ -132,7 +114,7 @@ export default function App() {
   });
   const toggleWatchlist = (symbol:string) => setWatchlist(prev => {
     const next = prev.includes(symbol) ? prev.filter(x=>x!==symbol) : [...prev,symbol];
-    try { localStorage.setItem('zi-watchlist', JSON.stringify(next)); } catch {}
+    watchlistRepository?.saveSymbols(next);
     return next;
   });
   const toggleTheme = () => setTheme(prev => {
@@ -209,7 +191,7 @@ export default function App() {
       {active==='Quality Score' && <QualityWorkspace language={language} />}
       {active==='Research Reports' && <ReportsWorkspace language={language} />}
       {active==='Compare Companies' && <ComparisonWorkspace language={language} />}
-      {active==='Watchlist' && <section className="workspace-page"><div className="page-heading"><div><div className="eyebrow muted">{language==='HI'?'आपकी सहेजी गई रिसर्च':'YOUR SAVED RESEARCH'}</div><h1>{language==='HI'?'वॉचलिस्ट':'Watchlist'}</h1><p>{language==='HI'?'इस डिवाइस के ब्राउज़र में स्थानीय रूप से सहेजी गई।':'Saved locally in this browser on this device.'}</p></div><div className="welcome-actions"><button className="secondary" onClick={()=>exportWatchlistCsv(demoCompanies.filter(c=>watchlist.includes(c.symbol)).map(({name,symbol,sector,roe,pe})=>({name,symbol,sector,roe,pe,status:watchlistResearch[symbol]?.status || 'To review',notes:watchlistResearch[symbol]?.notes || ''})))} disabled={!watchlist.length}>{language==='HI'?'CSV निर्यात':'Export CSV'}</button><button className="secondary" onClick={()=>{setWatchlist([]);try{localStorage.removeItem('zi-watchlist')}catch{}}} disabled={!watchlist.length}>{language==='HI'?'वॉचलिस्ट साफ़ करें':'Clear watchlist'}</button></div></div><div className="results-panel"><div className="results-top"><div><b>{watchlist.length} {language==='HI'?'सहेजी गई डेमो कंपनियाँ':'saved demo companies'}</b><small>{language==='HI'?'केवल उदाहरण सिंबल · स्थानीय संग्रहण':'Illustrative symbols only · Local storage'}</small></div></div>{watchlist.length ? <div className="table-wrap"><table><thead><tr><th>{language==='HI'?'कंपनी':'Company'}</th><th>{language==='HI'?'क्षेत्र':'Sector'}</th><th>ROE</th><th>P/E</th><th>{language==='HI'?'रिसर्च स्थिति':'Research status'}</th><th>{language==='HI'?'मेरे नोट्स':'My notes'}</th><th></th></tr></thead><tbody>{demoCompanies.filter(c=>watchlist.includes(c.symbol)).map(c=><tr key={c.symbol}><td><button className="company-link" onClick={()=>setSelected(c)}><b>{c.name}</b><small>{c.symbol}</small></button></td><td>{c.sector}</td><td>{c.roe}%</td><td>{c.pe}</td><td><select aria-label={`Research status for ${c.symbol}`} value={watchlistResearch[c.symbol]?.status || 'To review'} onChange={e=>updateWatchlistResearch(c.symbol,{status:e.target.value as WatchlistResearch['status']})}><option value="To review">{language==='HI'?'समीक्षा बाकी':'To review'}</option><option value="Researching">{language==='HI'?'रिसर्च जारी':'Researching'}</option><option value="Completed">{language==='HI'?'पूरा':'Completed'}</option></select></td><td><textarea aria-label={`Research notes for ${c.symbol}`} rows={2} value={watchlistResearch[c.symbol]?.notes || ''} onChange={e=>updateWatchlistResearch(c.symbol,{notes:e.target.value})} placeholder={language==='HI'?'अपने रिसर्च नोट्स लिखें...':'Add your research notes...'} /></td><td><button className="save-btn saved" onClick={()=>toggleWatchlist(c.symbol)} aria-label="Remove from watchlist"><Bookmark size={16} fill="currentColor"/></button></td></tr>)}</tbody></table></div> : <div className="empty">{language==='HI'?'आपकी वॉचलिस्ट खाली है। यहाँ देखने के लिए स्क्रीनर से कंपनी सेव करें।':'Your watchlist is empty. Save a company from the screener to see it here.'}</div>}</div></section>}
+      {active==='Watchlist' && <section className="workspace-page"><div className="page-heading"><div><div className="eyebrow muted">{language==='HI'?'आपकी सहेजी गई रिसर्च':'YOUR SAVED RESEARCH'}</div><h1>{language==='HI'?'वॉचलिस्ट':'Watchlist'}</h1><p>{language==='HI'?'इस डिवाइस के ब्राउज़र में स्थानीय रूप से सहेजी गई।':'Saved locally in this browser on this device.'}</p></div><div className="welcome-actions"><button className="secondary" onClick={()=>exportWatchlistCsv(demoCompanies.filter(c=>watchlist.includes(c.symbol)).map(({name,symbol,sector,roe,pe})=>({name,symbol,sector,roe,pe,status:watchlistResearch[symbol]?.status || 'To review',notes:watchlistResearch[symbol]?.notes || ''})))} disabled={!watchlist.length}>{language==='HI'?'CSV निर्यात':'Export CSV'}</button><button className="secondary" onClick={()=>{setWatchlist([]);watchlistRepository?.saveSymbols([]);}} disabled={!watchlist.length}>{language==='HI'?'वॉचलिस्ट साफ़ करें':'Clear watchlist'}</button></div></div><div className="results-panel"><div className="results-top"><div><b>{watchlist.length} {language==='HI'?'सहेजी गई डेमो कंपनियाँ':'saved demo companies'}</b><small>{language==='HI'?'केवल उदाहरण सिंबल · स्थानीय संग्रहण':'Illustrative symbols only · Local storage'}</small></div></div>{watchlist.length ? <div className="table-wrap"><table><thead><tr><th>{language==='HI'?'कंपनी':'Company'}</th><th>{language==='HI'?'क्षेत्र':'Sector'}</th><th>ROE</th><th>P/E</th><th>{language==='HI'?'रिसर्च स्थिति':'Research status'}</th><th>{language==='HI'?'मेरे नोट्स':'My notes'}</th><th></th></tr></thead><tbody>{demoCompanies.filter(c=>watchlist.includes(c.symbol)).map(c=><tr key={c.symbol}><td><button className="company-link" onClick={()=>setSelected(c)}><b>{c.name}</b><small>{c.symbol}</small></button></td><td>{c.sector}</td><td>{c.roe}%</td><td>{c.pe}</td><td><select aria-label={`Research status for ${c.symbol}`} value={watchlistResearch[c.symbol]?.status || 'To review'} onChange={e=>updateWatchlistResearch(c.symbol,{status:e.target.value as WatchlistResearch['status']})}><option value="To review">{language==='HI'?'समीक्षा बाकी':'To review'}</option><option value="Researching">{language==='HI'?'रिसर्च जारी':'Researching'}</option><option value="Completed">{language==='HI'?'पूरा':'Completed'}</option></select></td><td><textarea aria-label={`Research notes for ${c.symbol}`} rows={2} value={watchlistResearch[c.symbol]?.notes || ''} onChange={e=>updateWatchlistResearch(c.symbol,{notes:e.target.value})} placeholder={language==='HI'?'अपने रिसर्च नोट्स लिखें...':'Add your research notes...'} /></td><td><button className="save-btn saved" onClick={()=>toggleWatchlist(c.symbol)} aria-label="Remove from watchlist"><Bookmark size={16} fill="currentColor"/></button></td></tr>)}</tbody></table></div> : <div className="empty">{language==='HI'?'आपकी वॉचलिस्ट खाली है। यहाँ देखने के लिए स्क्रीनर से कंपनी सेव करें।':'Your watchlist is empty. Save a company from the screener to see it here.'}</div>}</div></section>}
       {active==='Settings' && <section className="workspace-page"><div className="page-heading"><div><div className="eyebrow muted">{language==='HI'?'व्यक्तिगत प्राथमिकताएँ':'PERSONAL PREFERENCES'}</div><h1>{language==='HI'?'सेटिंग्स':'Settings'}</h1><p>{language==='HI'?'इस डिवाइस पर रिसर्च वर्कस्पेस का रूप और व्यवहार चुनें।':'Choose how the research workspace looks and behaves on this device.'}</p></div></div><div className="panel settings-panel"><div className="setting-row"><div><b>{language==='HI'?'भाषा':'Language / भाषा'}</b><small>{language==='HI'?'इंटरफ़ेस की भाषा चुनें।':'Choose the interface language preference.'}</small></div><button className="secondary" onClick={toggleLanguage}>{language==='EN'?'English · Switch to हिंदी':'हिंदी · Switch to English'}</button></div><div className="setting-row"><div><b>{language==='HI'?'दिखावट':'Appearance'}</b><small>{language==='HI'?'डार्क और लाइट थीम के बीच बदलें।':'Change between dark and light workspace themes.'}</small></div><button className="secondary" onClick={toggleTheme}>{theme==='dark'?(language==='HI'?'लाइट थीम करें':'Switch to Light'):(language==='HI'?'डार्क थीम करें':'Switch to Dark')}</button></div><div className="setting-row"><div><b>{language==='HI'?'सहेजी गई वॉचलिस्ट':'Saved watchlist'}</b><small>{watchlist.length} {language==='HI'?'उदाहरण कंपनियाँ इस डिवाइस पर सहेजी गई हैं।':'illustrative companies saved on this device.'}</small></div><button className="secondary" onClick={()=>choose('Watchlist')}>{language==='HI'?'वॉचलिस्ट खोलें':'Open watchlist'}</button></div></div></section>}
       {active==='Help & support' && <section className="workspace-page"><div className="empty-state"><div className="empty-icon"><CircleHelp size={26}/></div><h2>{language==='HI'?'सहायता':'Help & support'}</h2><p>{language==='HI'?'ZENURA IGNITE अभी रिसर्च और पेपर-इन्वेस्टिंग प्लेटफ़ॉर्म का प्रोटोटाइप है। वास्तविक मार्केट डेटा, सुरक्षित अकाउंट सेवाएँ और AI रिसर्च अभी कनेक्ट नहीं हैं।':'ZENURA IGNITE is a research and paper-investing platform prototype. Live market data, secure account services and AI research are not connected yet.'}</p><button className="primary" onClick={()=>choose('Overview')}>{language==='HI'?'अवलोकन पर लौटें':'Back to overview'}</button></div></section>}
       {!['Overview','Stock Screener','Company Research','Compare Companies','Valuation Lab','Quality Score','Watchlist','Commodities Research','Research Reports','Settings','Help & support'].includes(active) && <section className="workspace-page"><div className="empty-state"><div className="empty-icon"><Settings2 size={26}/></div><h2>{active}</h2><p>This section is reserved for the next development milestone.</p><button className="primary" onClick={()=>choose('Overview')}>Back to overview</button></div></section>}
