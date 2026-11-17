@@ -71,13 +71,27 @@ export default function App() {
   });
   type WatchlistResearch = { status:'To review'|'Researching'|'Completed'; notes:string };
   const [watchlistResearch,setWatchlistResearch] = useState<Record<string,WatchlistResearch>>(() => {
-    try { return JSON.parse(localStorage.getItem('zi-watchlist-research') || '{}') as Record<string,WatchlistResearch>; } catch { return {}; }
+    try {
+      const parsed: unknown = JSON.parse(localStorage.getItem('zi-watchlist-research') || '{}');
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+      return Object.fromEntries(Object.entries(parsed).flatMap(([symbol, value]) => {
+        if (!demoCompanies.some(company => company.symbol === symbol) || !value || typeof value !== 'object') return [];
+        const item = value as Record<string, unknown>;
+        const status = item.status === 'Researching' || item.status === 'Completed' ? item.status : 'To review';
+        const notes = typeof item.notes === 'string' ? item.notes.slice(0, 5000) : '';
+        return [[symbol, { status, notes }]];
+      })) as Record<string,WatchlistResearch>;
+    } catch { return {}; }
   });
-  const updateWatchlistResearch = (symbol:string, patch:Partial<WatchlistResearch>) => setWatchlistResearch(prev => {
-    const next = {...prev,[symbol]:{status:prev[symbol]?.status || 'To review',notes:prev[symbol]?.notes || '',...patch}};
-    try { localStorage.setItem('zi-watchlist-research',JSON.stringify(next)); } catch {}
-    return next;
-  });
+  const updateWatchlistResearch = (symbol:string, patch:Partial<WatchlistResearch>) => {
+    if (!demoCompanies.some(company => company.symbol === symbol)) return;
+    setWatchlistResearch(prev => {
+      const next = {...prev,[symbol]:{status:prev[symbol]?.status || 'To review',notes:prev[symbol]?.notes || '',...patch}};
+      next[symbol].notes = next[symbol].notes.slice(0, 5000);
+      try { localStorage.setItem('zi-watchlist-research',JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
   const [searchOpen,setSearchOpen] = useState(false);
   const [theme,setTheme] = useState<'dark'|'light'>(() => {
     try { return localStorage.getItem('zi-theme') === 'light' ? 'light' : 'dark'; } catch { return 'dark'; }
