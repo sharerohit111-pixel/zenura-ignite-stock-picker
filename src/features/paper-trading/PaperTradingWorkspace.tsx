@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, RotateCcw, ShieldAlert, Wallet } from 'lucide-react';
 import { createPaperPortfolio, placePaperOrder, valuePaperPortfolio, type PaperPortfolio } from './engine';
+import { downloadPaperTradesCsv } from './export';
 import './paper-trading.css';
 
 const STORAGE_KEY = 'zi-paper-portfolio-v1';
@@ -69,7 +70,7 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
         <p className="panel-copy">{hi?'होल्डिंग का वर्तमान बाजार मूल्य तब तक नहीं दिखेगा जब तक सत्यापित कीमत स्रोत कनेक्ट न हो।':'Current market value and profit/loss remain unavailable until a verified price source is connected.'}</p>
       </div>
     </div>
-    <div className="panel paper-history"><div className="panel-title"><div><span className="eyebrow muted">{hi?'ऑर्डर लॉग':'ORDER LOG'}</span><h3>{hi?'पेपर ट्रेड इतिहास':'Paper trade history'}</h3></div></div>
+    <div className="panel paper-history"><div className="panel-title"><div><span className="eyebrow muted">{hi?'ऑर्डर लॉग':'ORDER LOG'}</span><h3>{hi?'पेपर ट्रेड इतिहास':'Paper trade history'}</h3></div><button className="secondary" disabled={portfolio.trades.length===0} onClick={()=>downloadPaperTradesCsv(portfolio.trades)}>{hi?'CSV डाउनलोड':'Export CSV'}</button></div>
       {portfolio.trades.length===0?<div className="empty">{hi?'आपके पेपर ऑर्डर यहाँ दिखाई देंगे।':'Your paper orders will appear here.'}</div>:<div className="table-wrap"><table><thead><tr><th>{hi?'समय':'Time'}</th><th>{hi?'सिंबल':'Symbol'}</th><th>{hi?'प्रकार':'Side'}</th><th>{hi?'मात्रा':'Qty'}</th><th>{hi?'कीमत':'Price'}</th><th>{hi?'मूल्य':'Value'}</th></tr></thead><tbody>{[...portfolio.trades].reverse().map(t=><tr key={t.id}><td>{new Date(t.executedAt).toLocaleString()}</td><td><b>{t.symbol}</b></td><td><span className={t.side==='BUY'?'paper-buy':'paper-sell'}>{t.side}</span></td><td>{t.quantity}</td><td>{money(t.price)}</td><td>{money(t.grossValue)}</td></tr>)}</tbody></table></div>}
     </div>
   </section>;
