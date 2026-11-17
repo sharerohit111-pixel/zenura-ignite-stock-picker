@@ -56,6 +56,15 @@ describe('saved screener settings',()=>{
   saveScreen(screen,storage);
   expect(loadSavedScreens(storage)).toEqual([screen]);
  });
+ it('rejects inherited object keys as metric names in saved rules',()=>{
+  const storage=makeStorage();
+  const base={id:'bad-key',name:'Bad metric key',search:'',updatedAt:'2026-11-17T00:00:00.000Z'};
+  storage.setItem('zi-saved-screens-v1',JSON.stringify([
+   {...base,rules:[{metric:'toString',operator:'IS_MISSING'}]},
+   {...base,id:'bad-constructor',rules:[{metric:'constructor',operator:'IS_MISSING'}]}
+  ]));
+  expect(loadSavedScreens(storage)).toEqual([]);
+ });
  it('rejects malformed saved rules with missing or contradictory bounds',()=>{
   const storage=makeStorage();
   const base={id:'bad',name:'Bad screen',search:'',updatedAt:'2026-11-17T00:00:00.000Z'};
