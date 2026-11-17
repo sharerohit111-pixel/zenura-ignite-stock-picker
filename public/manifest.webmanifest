@@ -1,7 +1,7 @@
 {
-  "name": "ZENURA IGNITE STOCK PICKER",
-  "short_name": "Zenura Picker",
-  "description": "Fundamental Research & Stock Analysis Platform",
+  "name": "ZENURA IGNITE",
+  "short_name": "ZENURA IGNITE",
+  "description": "Paper Trading & Paper Investing",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
