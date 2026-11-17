@@ -27,6 +27,7 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 | Comparison | Period-aligned company comparison | Implemented | UI and engine present; figures withheld until verified provider data exists |
 | Watchlist | Add/remove and browser-local persistence | Prototype | Demo companies only; no account sync |
 | Watchlist | Research notes and CSV export | Implemented | Local notes are validated and CSV export protects against spreadsheet formula injection |
+| Watchlist | Versioned JSON backup and validated restore | Implemented | Export/restore controls in Watchlist; restore validates format, version, symbols and notes, then asks before replacing local data; device-local only |
 | AI | Grounded research assistant | Blocked | Requires verified data pipeline and secure model service |
 | Reports | Editable research note and Print / Save PDF | Implemented | Browser print-to-PDF; report clearly warns that no market data is connected |
 | PWA | Manifest, icon and service worker shell | Implemented | Cache version updated; install/offline QA remains |
