@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { calculateQualityScore, type QualityFactor } from './engine';
-import './research-workspaces.css';
+import '../comparison/research-workspaces.css';
 const factors:{key:QualityFactor;label:string;description:string;needed:string}[]=[
  {key:'PROFITABILITY',label:'Profitability',description:'Returns and operating margins',needed:'ROE, ROCE, ROIC, operating margin'},
  {key:'GROWTH',label:'Growth',description:'Consistency of revenue and earnings growth',needed:'Revenue, EPS and PAT growth history'},
