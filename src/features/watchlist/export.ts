@@ -1,4 +1,4 @@
-export type WatchlistExportRow = { name:string; symbol:string; sector:string; roe:number; pe:number };
+export type WatchlistExportRow = { name:string; symbol:string; sector:string; roe:number; pe:number; status:string; notes:string };
 
 const csvCell = (value:string | number) => {
   const text = String(value);
@@ -6,8 +6,8 @@ const csvCell = (value:string | number) => {
 };
 
 export function exportWatchlistCsv(rows:WatchlistExportRow[]) {
-  const header = ['Company','Symbol','Sector','ROE (%)','P/E'];
-  const body = rows.map(row => [row.name,row.symbol,row.sector,row.roe,row.pe]);
+  const header = ['Company','Symbol','Sector','ROE (%)','P/E','Research status','My notes'];
+  const body = rows.map(row => [row.name,row.symbol,row.sector,row.roe,row.pe,row.status,row.notes]);
   const csv = [header,...body].map(row=>row.map(csvCell).join(',')).join('\r\n');
   const blob = new Blob(['\uFEFF',csv],{type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
