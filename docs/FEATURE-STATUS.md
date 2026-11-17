@@ -1,13 +1,15 @@
-# ZENURA IGNITE STOCK PICKER — Feature Status
+# ZENURA IGNITE — Feature Status
 
 Status meanings: Prototype · Implemented · Automated tests passing · Live · Blocked.
 
 | Area | Feature | Status | Notes |
 |---|---|---|---|
+| Branding | Product name and subtitle across app shell, report, HTML title and PWA metadata | Implemented | ZENURA IGNITE — Paper Trading & Paper Investing |
 | Shell | Responsive research dashboard and primary navigation | Implemented | Full-width mobile/tablet layout fix deployed; real-device QA remains |
 | Search | Global company/commodity search UI | Prototype | Searches illustrative demo catalogue only; no verified exchange master |
 | Search | NSE/BSE master search, symbol and ISIN lookup | Blocked | Requires approved company master/data provider |
 | Preferences | English/Hindi preference persistence | Implemented | Preference persists; complete Hindi translation remains |
+| Preferences | DCF validation errors in Hindi | Implemented | DCF field and result copy still needs full language QA |
 | Preferences | Dark/light theme persistence | Implemented | Device-local preference; visual accessibility QA remains |
 | Navigation | Mobile sidebar and Back-to-Top | Implemented | Responsive CSS and interactions present; device QA remains |
 | Screener | ROE, ROCE, P/E, P/B, Debt/Equity filters | Prototype | Engine wired; sample values are explicitly illustrative and unverified |
@@ -28,11 +30,11 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 | AI | Grounded research assistant | Blocked | Requires verified data pipeline and secure model service |
 | Reports | Editable research note and Print / Save PDF | Implemented | Browser print-to-PDF; report clearly warns that no market data is connected |
 | PWA | Manifest, icon and service worker shell | Implemented | Cache version updated; install/offline QA remains |
-| Security | Authentication, authorization, audit and API security | Blocked | Requires backend and security design |
+| Security | Authentication, authorization, audit and API security | Blocked | Architecture plan documented; provider/hosting decisions and implementation remain |
 | Backend | Provider ingestion, API, cache and monitoring | Blocked | Static GitHub Pages cannot safely store provider secrets |
 | Monetization | Ads and subscriptions | Disabled by design | Must remain disabled for initial release |
-| Release | CI tests, type-check, build | Automated tests passing | Latest main commit passed dependency install, unit tests, type-check and production build |
-| Release | GitHub Pages deployment | Live | Latest main commit deployed successfully on 17 Nov 2026 |
+| Release | CI tests, type-check, build | Automated tests passing | Latest main commit passed automated build verification |
+| Release | GitHub Pages deployment | Live | Latest main commit deployment succeeded on 17 Nov 2026 |
 | Release | Android Chrome/iOS Safari, offline/PWA and accessibility QA | Pending | Requires physical-device/browser verification |
 
 ## Non-negotiable data integrity
@@ -42,15 +44,18 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 - Every metric must retain source, period, unit, timestamps and validation status.
 - Missing values must never be represented as zero.
 - Keep Stock and Commodities modules isolated.
-- Paper Trading and Paper Investing are out of scope unless explicitly requested.
+- Do not represent the product subtitle as proof that paper trading or investing execution features are complete.
 
 ## Release blockers
 
-1. Select a provider and obtain written confirmation that the intended commercial app display/use is licensed. Exchange data is subject to subscriber agreements and redistribution/display restrictions.
-2. Obtain provider credentials and store them only in a secure backend secret store—not in the static frontend or GitHub Pages bundle.
-3. Implement backend ingestion/API, source registry, exchange master reconciliation, caching, monitoring and access controls.
-4. Complete Hindi translation and grounded AI only after the data pipeline is verified.
-5. Complete physical-device accessibility, responsive, offline and PWA update QA.
-6. Add authentication and user data sync after backend/security architecture is approved.
+1. Select a provider and obtain written confirmation that the intended commercial app display/use is licensed.
+2. Select backend hosting/database and managed identity/OTP provider.
+3. Store provider credentials only in a secure backend secret store—not in the static frontend or GitHub Pages bundle.
+4. Implement backend ingestion/API, source registry, exchange master reconciliation, caching, monitoring and access controls.
+5. Complete Hindi translation and grounded AI only after the data pipeline is verified.
+6. Complete physical-device accessibility, responsive, offline and PWA update QA.
+7. Enable login only after OTP, recovery, authorization and end-to-end security tests pass.
 
-Paper trading/investing, advertisements and paid subscriptions remain outside initial release scope or disabled.
+See [Backend, Authentication and Security Plan](SECURITY-AND-BACKEND-PLAN.md) for phases and acceptance criteria.
+
+Ads and paid subscriptions remain disabled.
