@@ -46,3 +46,22 @@ export function loadPaperPortfolio(storage: Pick<Storage, 'getItem' | 'setItem'>
   }
   return { portfolio: createPaperPortfolio(100000)!, recoveredInvalidData: false, recoveryCopySaved: false };
 }
+
+
+/** Downloads the preserved raw recovery payload without modifying either storage key. */
+export function downloadPaperPortfolioRecoveryCopy(storage: Pick<Storage, 'getItem'>): boolean {
+  try {
+    const raw = storage.getItem(PAPER_PORTFOLIO_RECOVERY_KEY);
+    if (raw === null || typeof document === 'undefined' || typeof URL === 'undefined' || typeof Blob === 'undefined') return false;
+    const blob = new Blob([raw], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'zenura-ignite-paper-recovery-copy.txt';
+    anchor.click();
+    URL.revokeObjectURL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
