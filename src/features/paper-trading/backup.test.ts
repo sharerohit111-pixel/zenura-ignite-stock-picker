@@ -62,7 +62,13 @@ describe('paper portfolio JSON backup',()=>{
     const invalid={...portfolio,cash:1};
     expect(parsePaperPortfolioRecoveryCopy(JSON.stringify(invalid)).ok).toBe(false);
   });
-  it('rejects files larger than one megabyte',()=>{
+  it('rejects oversized backup and recovery-copy files before parsing',()=>{
     expect(parsePaperPortfolioBackup(' '.repeat(1_000_001)).ok).toBe(false);
+    expect(parsePaperPortfolioRecoveryCopy(' '.repeat(1_000_001)).ok).toBe(false);
+  });
+  it('rejects empty and non-object recovery-copy payloads',()=>{
+    expect(parsePaperPortfolioRecoveryCopy('').ok).toBe(false);
+    expect(parsePaperPortfolioRecoveryCopy('null').ok).toBe(false);
+    expect(parsePaperPortfolioRecoveryCopy('[]').ok).toBe(false);
   });
 });
