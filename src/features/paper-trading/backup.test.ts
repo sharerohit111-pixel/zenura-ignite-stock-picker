@@ -11,6 +11,11 @@ function sample() {
   return sell.portfolio;
 }
 
+function reasonOf(result: ReturnType<typeof validatePaperPortfolioBackup>) {
+  if (result.ok) throw new Error('Expected backup validation to fail');
+  return result.reason;
+}
+
 describe('paper portfolio JSON backup',()=>{
   it('round trips a valid ledger and snapshot',()=>{
     const backup=createPaperPortfolioBackup(sample(),new Date('2026-11-17T12:00:00.000Z'));
@@ -23,9 +28,9 @@ describe('paper portfolio JSON backup',()=>{
     }
   });
   it('rejects invalid JSON, wrong format and unsupported versions',()=>{
-    expect(parsePaperPortfolioBackup('{').reason).toBe('INVALID_JSON');
-    expect(validatePaperPortfolioBackup({format:'other'}).reason).toBe('INVALID_FORMAT');
-    expect(validatePaperPortfolioBackup({format:'zenura-ignite-paper-portfolio',version:99}).reason).toBe('UNSUPPORTED_VERSION');
+    expect(reasonOf(parsePaperPortfolioBackup('{'))).toBe('INVALID_JSON');
+    expect(reasonOf(validatePaperPortfolioBackup({format:'other'}))).toBe('INVALID_FORMAT');
+    expect(reasonOf(validatePaperPortfolioBackup({format:'zenura-ignite-paper-portfolio',version:99}))).toBe('UNSUPPORTED_VERSION');
   });
   it('rejects impossible trades and tampered cash or positions',()=>{
     const backup=createPaperPortfolioBackup(sample());
