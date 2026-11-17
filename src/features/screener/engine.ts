@@ -124,7 +124,7 @@ function isSavedScreen(value: unknown): value is SavedScreen {
   return item.rules.every((candidate: unknown) => {
     if (!candidate || typeof candidate !== 'object') return false;
     const rule = candidate as Partial<ScreenerRule>;
-    if (typeof rule.metric !== 'string' || !(rule.metric in METRIC_CATALOG) ||
+    if (typeof rule.metric !== 'string' || !Object.prototype.hasOwnProperty.call(METRIC_CATALOG, rule.metric) ||
         !FILTER_OPERATORS.includes(rule.operator as FilterOperator)) return false;
     if (rule.value !== undefined && (typeof rule.value !== 'number' || !Number.isFinite(rule.value))) return false;
     if (rule.upperValue !== undefined && (typeof rule.upperValue !== 'number' || !Number.isFinite(rule.upperValue))) return false;
