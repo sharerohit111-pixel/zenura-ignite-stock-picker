@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { runScreener, type ScreenerRow } from './engine';
+import { runScreener, loadSavedScreens, saveScreen, deleteSavedScreen, type ScreenerRow, type SavedScreen } from './engine';
 import type { MetricObservation } from '../../platform/data-contracts/types';
 const obs=(value:number|null,status:'VERIFIED'|'STALE'='VERIFIED',date='2025-03-31'):MetricObservation=>({observationId:date+String(value),companyId:'c1',metricKey:'PE',value,unit:'MULTIPLE',periodType:'ANNUAL',periodEnd:date,sourceId:'filing',sourceRetrievedAt:date,ingestedAt:date,status});
 const rows:ScreenerRow[]=[{company:{companyId:'c1',name:'Alpha',identityStatus:'CONFIRMED'},observations:[obs(12)]},{company:{companyId:'c2',name:'Beta',identityStatus:'CONFIRMED'},observations:[obs(24,'STALE')]},{company:{companyId:'c3',name:'Gamma',identityStatus:'PROVISIONAL'},observations:[]}];
@@ -12,4 +12,31 @@ describe('runScreener',()=>{
  it('sorts with missing values last',()=>{const r=runScreener(rows.slice(0,2),{rules:[],sortBy:'PE',sortDirection:'DESC'});expect(r.rows.map(x=>x.company.name)).toEqual(['Alpha','Beta']);});
  it('checks the latest period for IS_MISSING instead of preferring an older verified value',()=>{const row:ScreenerRow={company:{companyId:'c5',name:'Epsilon',identityStatus:'CONFIRMED'},observations:[obs(10,'VERIFIED','2024-03-31'),obs(null,'STALE','2025-03-31')]};const r=runScreener([row],{rules:[{metric:'PE',operator:'IS_MISSING'}]});expect(r.matched).toBe(1);});
  it('does not call a newer present value missing because an older period was missing',()=>{const row:ScreenerRow={company:{companyId:'c6',name:'Zeta',identityStatus:'CONFIRMED'},observations:[obs(null,'STALE','2024-03-31'),obs(16,'VERIFIED','2025-03-31')]};const r=runScreener([row],{rules:[{metric:'PE',operator:'IS_MISSING'}]});expect(r.matched).toBe(0);});
+});
+
+
+describe('saved screener settings',()=>{
+ const makeStorage=()=>{
+  const values=new Map<string,string>();
+  return {getItem:(key:string)=>values.get(key)??null,setItem:(key:string,value:string)=>{values.set(key,value);}};
+ };
+ it('persists and restores saved filter and sort settings',()=>{
+  const storage=makeStorage();
+  const screen:SavedScreen={id:'screen-1',name:'Value shortlist',rules:[{metric:'PE',operator:'LTE',value:20}],search:'alpha',updatedAt:'2026-11-17T00:00:00.000Z',sortMetric:'ROE',sortDirection:'ASC'};
+  saveScreen(screen,storage);
+  expect(loadSavedScreens(storage)).toEqual([screen]);
+ });
+ it('accepts older saved screens without sort settings',()=>{
+  const storage=makeStorage();
+  const legacy={id:'screen-old',name:'Legacy',rules:[],search:'',updatedAt:'2026-11-16T00:00:00.000Z'};
+  storage.setItem('zi-saved-screens-v1',JSON.stringify([legacy]));
+  expect(loadSavedScreens(storage)).toEqual([legacy]);
+ });
+ it('deletes only the selected saved screen',()=>{
+  const storage=makeStorage();
+  const first:SavedScreen={id:'one',name:'One',rules:[],search:'',updatedAt:'2026-11-17T00:00:00.000Z'};
+  const second:SavedScreen={...first,id:'two',name:'Two'};
+  saveScreen(first,storage);saveScreen(second,storage);
+  expect(deleteSavedScreen('one',storage).map(item=>item.id)).toEqual(['two']);
+ });
 });
