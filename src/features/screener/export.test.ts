@@ -4,7 +4,7 @@ import { buildScreenerCsv } from './export';
 describe('buildScreenerCsv', () => {
   it('exports only supplied filtered rows with explicit data status', () => {
     const csv = buildScreenerCsv([{name:'Sample Industries Ltd.',symbol:'DEMO1',sector:'Industrials',roe:22.4,roce:28.1,pe:24.8,pb:5.2,debtToEquity:0.12,dataStatus:'Unverified demo'}]);
-    expect(csv.startsWith('\\uFEFF')).toBe(true);
+    expect(csv.startsWith('\uFEFF')).toBe(true);
     expect(csv).toContain('"Company","Symbol","Sector"');
     expect(csv).toContain('"Unverified demo"');
     expect(csv).toContain('"DEMO1"');
