@@ -7,29 +7,30 @@ export default function ReportsWorkspace({language='EN'}:{language?:'EN'|'HI'}) 
   const [company, setCompany] = useState('');
   const [purpose, setPurpose] = useState('Fundamental research and valuation review');
   const [notes, setNotes] = useState('');
-  const generatedAt = useMemo(() => new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }), []);
+  const generatedAt = useMemo(() => new Date().toLocaleString(language === 'HI' ? 'hi-IN' : 'en-IN', { dateStyle: 'medium', timeStyle: 'short' }), []);
+  const hi = language === 'HI';
 
   return <section className="workspace-page reports-workspace">
-    <div className="page-heading"><div><div className="eyebrow muted">{language==='HI'?'रिसर्च दस्तावेज़':'RESEARCH DOCUMENTS'}</div><h1>{language==='HI'?'रिसर्च रिपोर्ट':'Research Reports'}</h1><p>{language==='HI'?'अपने सत्यापित रिसर्च इनपुट से व्यवस्थित, प्रिंट योग्य रिसर्च नोट बनाएं।':'Create a structured, printable research note from your own verified research inputs.'}</p></div><button className="primary" onClick={() => window.print()}><FileDown size={17}/> {language==='HI'?'प्रिंट / PDF सेव करें':'Print / Save PDF'}</button></div>
-    <div className="market-disclaimer"><b>{language==='HI'?'रिपोर्ट बिल्डर — मार्केट डेटा कनेक्ट नहीं है।':'Report builder — no market data is connected.'}</b> This report does not fetch or invent company figures. Add only verified inputs and attach source references in your notes before relying on the document.</div>
+    <div className="page-heading"><div><div className="eyebrow muted">{hi?'रिसर्च दस्तावेज़':'RESEARCH DOCUMENTS'}</div><h1>{hi?'रिसर्च रिपोर्ट':'Research Reports'}</h1><p>{hi?'अपने सत्यापित रिसर्च इनपुट से व्यवस्थित, प्रिंट योग्य रिसर्च नोट बनाएं।':'Create a structured, printable research note from your own verified research inputs.'}</p></div><button className="primary" onClick={() => window.print()}><FileDown size={17}/> {hi?'प्रिंट / PDF सेव करें':'Print / Save PDF'}</button></div>
+    <div className="market-disclaimer"><b>{hi?'रिपोर्ट बिल्डर — मार्केट डेटा कनेक्ट नहीं है।':'Report builder — no market data is connected.'}</b> {hi?'यह रिपोर्ट कंपनी के आँकड़े प्राप्त या गढ़ती नहीं है। भरोसा करने से पहले केवल सत्यापित इनपुट जोड़ें और नोट्स में स्रोत संदर्भ दें।':'This report does not fetch or invent company figures. Add only verified inputs and attach source references in your notes before relying on the document.'}</div>
     <div className="panel report-editor">
-      <label>Report title<input value={title} onChange={e=>setTitle(e.target.value)} maxLength={100}/></label>
-      <label>Company / security<input value={company} onChange={e=>setCompany(e.target.value)} placeholder="Enter verified legal company name and symbol" maxLength={120}/></label>
-      <label>Research purpose<input value={purpose} onChange={e=>setPurpose(e.target.value)} maxLength={160}/></label>
-      <label>Research notes and source references<textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={8} placeholder="Record verified figures with reporting period, unit, source name, publication date and retrieval date. Separate facts from assumptions."/></label>
+      <label>{hi?'रिपोर्ट का शीर्षक':'Report title'}<input value={title} onChange={e=>setTitle(e.target.value)} maxLength={100}/></label>
+      <label>{hi?'कंपनी / प्रतिभूति':'Company / security'}<input value={company} onChange={e=>setCompany(e.target.value)} placeholder={hi?'सत्यापित कानूनी कंपनी नाम और सिंबल लिखें':'Enter verified legal company name and symbol'} maxLength={120}/></label>
+      <label>{hi?'रिसर्च का उद्देश्य':'Research purpose'}<input value={purpose} onChange={e=>setPurpose(e.target.value)} maxLength={160}/></label>
+      <label>{hi?'रिसर्च नोट्स और स्रोत संदर्भ':'Research notes and source references'}<textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={8} placeholder={hi?'रिपोर्टिंग अवधि, इकाई, स्रोत का नाम, प्रकाशन तिथि और प्राप्ति तिथि सहित सत्यापित आँकड़े लिखें। तथ्यों और अनुमानों को अलग रखें।':'Record verified figures with reporting period, unit, source name, publication date and retrieval date. Separate facts from assumptions.'}/></label>
     </div>
     <article className="report-paper" id="research-report">
-      <div className="report-brand"><span>ZENURA IGNITE</span><small>STOCK PICKER · RESEARCH WORKSPACE</small></div>
+      <div className="report-brand"><span>ZENURA IGNITE</span><small>STOCK PICKER · {hi?'रिसर्च कार्यक्षेत्र':'RESEARCH WORKSPACE'}</small></div>
       <div className="report-rule"/>
-      <div className="eyebrow muted">RESEARCH REPORT</div>
-      <h1>{title.trim() || 'Research Report'}</h1>
-      <p className="report-meta">Prepared: {generatedAt}</p>
-      <div className="report-section"><h2>1. Company / Security</h2><p>{company.trim() || 'Not specified — enter a verified company identity before distribution.'}</p></div>
-      <div className="report-section"><h2>2. Research Objective</h2><p>{purpose.trim() || 'Not specified.'}</p></div>
-      <div className="report-section"><h2>3. Research Notes & Evidence</h2><p className="report-notes">{notes.trim() || 'No research notes entered. Add source-backed financial observations, reporting periods, units, assumptions and risks before sharing.'}</p></div>
-      <div className="report-section"><h2>4. Valuation & Risk Assessment</h2><p>Record valuation method, key assumptions, sensitivity ranges and material risks here. No intrinsic value or target price is generated by this report template.</p></div>
-      <div className="report-section"><h2>5. Data Quality & Limitations</h2><p>Verify each figure against its original filing or licensed data source. Distinguish annual, quarterly and TTM periods. Missing information must not be treated as zero. Mark stale, unverified or conflicting observations clearly.</p></div>
-      <div className="report-disclaimer"><ShieldCheck size={16}/><span><b>Important:</b> Research document template only. Not investment advice, a recommendation, or a guarantee of future performance. The platform currently has no connected live market-data provider.</span></div>
+      <div className="eyebrow muted">{hi?'रिसर्च रिपोर्ट':'RESEARCH REPORT'}</div>
+      <h1>{title.trim() || (hi?'रिसर्च रिपोर्ट':'Research Report')}</h1>
+      <p className="report-meta">{hi?'तैयार किया गया':'Prepared'}: {generatedAt}</p>
+      <div className="report-section"><h2>1. {hi?'कंपनी / प्रतिभूति':'Company / Security'}</h2><p>{company.trim() || (hi?'निर्दिष्ट नहीं — साझा करने से पहले सत्यापित कंपनी पहचान दर्ज करें।':'Not specified — enter a verified company identity before distribution.')}</p></div>
+      <div className="report-section"><h2>2. {hi?'रिसर्च का उद्देश्य':'Research Objective'}</h2><p>{purpose.trim() || (hi?'निर्दिष्ट नहीं।':'Not specified.')}</p></div>
+      <div className="report-section"><h2>3. {hi?'रिसर्च नोट्स और साक्ष्य':'Research Notes & Evidence'}</h2><p className="report-notes">{notes.trim() || (hi?'कोई रिसर्च नोट दर्ज नहीं है। साझा करने से पहले स्रोत-समर्थित वित्तीय आँकड़े, रिपोर्टिंग अवधि, इकाइयाँ, मान्यताएँ और जोखिम जोड़ें।':'No research notes entered. Add source-backed financial observations, reporting periods, units, assumptions and risks before sharing.')}</p></div>
+      <div className="report-section"><h2>4. {hi?'मूल्यांकन और जोखिम आकलन':'Valuation & Risk Assessment'}</h2><p>{hi?'मूल्यांकन पद्धति, प्रमुख मान्यताएँ, संवेदनशीलता सीमाएँ और महत्वपूर्ण जोखिम दर्ज करें। यह रिपोर्ट टेम्पलेट आंतरिक मूल्य या लक्ष्य मूल्य तैयार नहीं करता।':'Record valuation method, key assumptions, sensitivity ranges and material risks here. No intrinsic value or target price is generated by this report template.'}</p></div>
+      <div className="report-section"><h2>5. {hi?'डेटा गुणवत्ता और सीमाएँ':'Data Quality & Limitations'}</h2><p>{hi?'हर आँकड़े को मूल फाइलिंग या लाइसेंस प्राप्त डेटा स्रोत से सत्यापित करें। वार्षिक, तिमाही और TTM अवधियों को अलग रखें। अनुपलब्ध जानकारी को शून्य न मानें। पुराने, असत्यापित या परस्पर विरोधी आँकड़ों को स्पष्ट रूप से चिह्नित करें।':'Verify each figure against its original filing or licensed data source. Distinguish annual, quarterly and TTM periods. Missing information must not be treated as zero. Mark stale, unverified or conflicting observations clearly.'}</p></div>
+      <div className="report-disclaimer"><ShieldCheck size={16}/><span><b>{hi?'महत्वपूर्ण:':'Important:'}</b> {hi?'यह केवल रिसर्च दस्तावेज़ टेम्पलेट है। यह निवेश सलाह, सिफारिश या भविष्य के प्रदर्शन की गारंटी नहीं है। प्लेटफ़ॉर्म में अभी लाइव मार्केट-डेटा प्रदाता जुड़ा नहीं है।':'Research document template only. Not investment advice, a recommendation, or a guarantee of future performance. The platform currently has no connected live market-data provider.'}</span></div>
       <footer>Rohit Kumar — Founder & Developer · ZENURA IGNITE STOCK PICKER</footer>
     </article>
   </section>;
