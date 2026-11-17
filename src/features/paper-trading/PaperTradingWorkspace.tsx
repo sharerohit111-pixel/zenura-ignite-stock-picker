@@ -10,7 +10,10 @@ import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPor
 import './paper-trading.css';
 
 const money = (value:number) => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(value);
-const loadResult = () => {\n  try { return loadPaperPortfolio(localStorage); }\n  catch { return { portfolio: createPaperPortfolio(100000)!, recoveredInvalidData: false, recoveryCopySaved: false }; }\n};
+const loadResult = () => {
+  try { return loadPaperPortfolio(localStorage); }
+  catch { return { portfolio: createPaperPortfolio(100000)!, recoveredInvalidData: false, recoveryCopySaved: false }; }
+};
 
 export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
   const hi = language === 'HI';
