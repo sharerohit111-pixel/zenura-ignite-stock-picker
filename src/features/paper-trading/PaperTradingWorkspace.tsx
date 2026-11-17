@@ -6,7 +6,7 @@ import { removePaperTrade } from './ledger';
 import { filterPaperTradesByDate } from './history';
 import { downloadPaperTradesCsv } from './export';
 import { calculatePaperTradingAnalytics } from './analytics';
-import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup, validatePaperPortfolioBackup, PAPER_BACKUP_FORMAT, PAPER_BACKUP_VERSION } from './backup';
+import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup } from './backup';
 import './paper-trading.css';
 
 const money = (value:number) => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(value);
