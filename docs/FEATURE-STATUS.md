@@ -32,8 +32,9 @@ Status meanings: Prototype · Implemented · Automated tests passing · Live · 
 | Paper Trading | Portfolio positions and trade history | Implemented | Browser-local persistence; missing reference prices remain unavailable, not zero |
 | Paper Trading | Realized P/L and turnover analytics | Implemented | Ledger replay calculates realized P/L, buy/sell turnover and completed trades |
 | Paper Trading | Trade history CSV export | Implemented | CSV escaping and spreadsheet formula-injection protection included; exports the currently selected date-filtered history |
-| Paper Trading | Versioned JSON backup and validated restore | Implemented | Export/restore validates portfolio ledger, cash and positions; preview and confirmation before replacing local data; device-local only |
+| Paper Trading | Versioned JSON backup and validated restore | Implemented | Export/restore validates portfolio ledger, cash and positions; rejects blank, overlong and duplicate trade IDs; preview and confirmation before replacing local data; device-local only |
 | Paper Trading | Date-wise trade history filter | Live | Inclusive local-calendar From/To filters, open-ended ranges, clear filter and filtered CSV export; invalid/reversed ranges show no trades |
+| Paper Trading | Saved portfolio integrity check | Implemented | Saved local portfolio is validated against the versioned backup schema and replayed ledger before loading; invalid saved state falls back to a fresh virtual portfolio |
 | AI | Grounded research assistant | Blocked | Requires verified data pipeline and secure model service |
 | Reports | Editable research note and Print / Save PDF | Implemented | Browser print-to-PDF; report clearly warns that no market data is connected |
 | PWA | Manifest, icon and service worker shell | Implemented | Cache version updated; install/offline QA remains |
