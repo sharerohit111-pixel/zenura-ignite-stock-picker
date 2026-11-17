@@ -2,12 +2,12 @@
   "name": "ZENURA IGNITE STOCK PICKER",
   "short_name": "Zenura Picker",
   "description": "Fundamental Research & Stock Analysis Platform",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#071326",
   "theme_color": "#071326",
   "icons": [
-    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }
