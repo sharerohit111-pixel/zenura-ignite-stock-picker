@@ -91,3 +91,21 @@ export function downloadPaperPortfolioBackup(backup: PaperPortfolioBackup): bool
     return true;
   } finally { URL.revokeObjectURL(url); }
 }
+
+
+/** Parses a raw localStorage recovery copy and validates it as a complete portfolio ledger. */
+export function parsePaperPortfolioRecoveryCopy(json: string): PaperBackupResult {
+  if (json.length > MAX_FILE_SIZE)
+    return { ok:false, reason:'INVALID_DATA', message:'The recovery file exceeds the 1 MB limit.' };
+  try {
+    const portfolio: unknown = JSON.parse(json);
+    return validatePaperPortfolioBackup({
+      format: PAPER_BACKUP_FORMAT,
+      version: PAPER_BACKUP_VERSION,
+      exportedAt: new Date().toISOString(),
+      portfolio
+    });
+  } catch {
+    return { ok:false, reason:'INVALID_JSON', message:'The recovery copy is not valid JSON.' };
+  }
+}
