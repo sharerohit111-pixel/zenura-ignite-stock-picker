@@ -76,7 +76,7 @@ export default function App() {
   const [showFilters,setShowFilters] = useState(true);
 
   const demoRows = useMemo<ScreenerRow[]>(()=>demoCompanies.map(c=>({
-    company:{companyId:c.symbol,name:c.name,symbol:c.symbol,sector:c.sector,identityStatus:'CONFIRMED'},
+    company:{companyId:c.symbol,name:c.name,symbol:c.symbol,sector:c.sector,identityStatus:'PROVISIONAL'},
     observations:([
       ['ROE',c.roe,'PERCENT'],['ROCE',c.roce,'PERCENT'],['PE',c.pe,'MULTIPLE'],['PB',c.pb,'MULTIPLE'],['DEBT_TO_EQUITY',c.debt,'RATIO']
     ] as [MetricKey,number,'PERCENT'|'MULTIPLE'|'RATIO'][]).map(([metricKey,value,unit])=>({
