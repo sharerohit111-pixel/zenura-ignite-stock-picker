@@ -6,7 +6,7 @@ import { removePaperTrade } from './ledger';
 import { filterPaperTradesByDate } from './history';
 import { downloadPaperTradesCsv } from './export';
 import { calculatePaperTradingAnalytics } from './analytics';
-import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup } from './backup';
+import { createPaperPortfolioBackup, downloadPaperPortfolioBackup, parsePaperPortfolioBackup, parsePaperPortfolioRecoveryCopy } from './backup';
 import './paper-trading.css';
 
 const money = (value:number) => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(value);
@@ -29,6 +29,7 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
   const [historyFrom,setHistoryFrom] = useState('');
   const [historyTo,setHistoryTo] = useState('');
   const [backupInput,setBackupInput] = useState<HTMLInputElement | null>(null);
+  const [recoveryInput,setRecoveryInput] = useState<HTMLInputElement | null>(null);
   const [recoveryAvailable,setRecoveryAvailable] = useState(()=>{try{return localStorage.getItem(PAPER_PORTFOLIO_RECOVERY_KEY)!==null;}catch{return false;}});
   useEffect(()=>{try{localStorage.setItem(PAPER_PORTFOLIO_STORAGE_KEY,JSON.stringify(portfolio));}catch{setMessage(hi?'इस डिवाइस पर सेव नहीं हो पाया।':'Could not save on this device.');setMessageError(true);}},[portfolio,hi]);
   const valuation = useMemo(()=>valuePaperPortfolio(portfolio,{}),[portfolio]);
@@ -49,6 +50,15 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
     try { ok = downloadPaperPortfolioRecoveryCopy(localStorage); } catch { ok = false; }
     setMessage(ok ? (hi?'रिकवरी कॉपी डाउनलोड हुई।':'Recovery copy downloaded.') : (hi?'रिकवरी कॉपी उपलब्ध नहीं है।':'Recovery copy is unavailable.'));
     setMessageError(!ok);
+  };
+  const selectRecoveryCopy = async (file?: File) => {
+    if (!file) return;
+    if (file.size > 1_000_000) { setMessage(hi?'रिकवरी फाइल 1 MB से बड़ी है।':'Recovery file exceeds 1 MB.'); setMessageError(true); return; }
+    const result = parsePaperPortfolioRecoveryCopy(await file.text());
+    if (!result.ok) { setMessage(hi?'रिकवरी कॉपी मान्य पोर्टफोलियो नहीं है: ':'Recovery copy is not a valid portfolio: '+result.message); setMessageError(true); setRestorePreview(null); return; }
+    setRestorePreview(result.backup.portfolio);
+    setMessage(hi?'रिकवरी कॉपी की जाँच सफल। विवरण देखकर Restore करें।':'Recovery copy validated. Review the preview and confirm restore below.');
+    setMessageError(false);
   };
   const exportBackup = () => {
     const ok = downloadPaperPortfolioBackup(createPaperPortfolioBackup(portfolio));
@@ -113,7 +123,7 @@ export default function PaperTradingWorkspace({language}:{language:'EN'|'HI'}) {
     </div>
     <div className="panel paper-history"><div className="panel-title"><div><span className="eyebrow muted">{hi?'ऑर्डर लॉग':'ORDER LOG'}</span><h3>{hi?'पेपर ट्रेड इतिहास':'Paper trade history'}</h3></div><button className="secondary" disabled={filteredTrades.length===0} onClick={()=>downloadPaperTradesCsv(filteredTrades)}>{hi?'CSV डाउनलोड':'Export filtered CSV'}</button></div>
       <div className="paper-history-filters"><label>{hi?'शुरुआत की तारीख':'From date'}<input type="date" value={historyFrom} onChange={e=>setHistoryFrom(e.target.value)}/></label><label>{hi?'अंतिम तारीख':'To date'}<input type="date" value={historyTo} onChange={e=>setHistoryTo(e.target.value)}/></label><button className="secondary" onClick={()=>{setHistoryFrom('');setHistoryTo('');}}>{hi?'फ़िल्टर हटाएँ':'Clear filter'}</button><span>{invalidDateRange?(hi?'तारीख सीमा गलत है':'Invalid date range'):(hi?'दिखाए गए ट्रेड':'Trades shown')+': '+filteredTrades.length}</span></div>
-      <div className="paper-backup-actions">{recoveryAvailable&&<button className="secondary" onClick={exportRecoveryCopy}>{hi?'पुरानी रिकवरी कॉपी डाउनलोड':'Download recovery copy'}</button>}<button className="secondary" onClick={exportBackup}>{hi?'JSON बैकअप डाउनलोड':'Download JSON backup'}</button><button className="secondary" onClick={()=>backupInput?.click()}>{hi?'JSON बैकअप चुनें':'Choose JSON backup'}</button><input ref={setBackupInput} type="file" accept="application/json,.json" hidden onChange={e=>{void selectBackup(e.target.files?.[0]);}} /></div>
+      <div className="paper-backup-actions">{recoveryAvailable&&<><button className="secondary" onClick={exportRecoveryCopy}>{hi?'पुरानी रिकवरी कॉपी डाउनलोड':'Download recovery copy'}</button><button className="secondary" onClick={()=>recoveryInput?.click()}>{hi?'रिकवरी कॉपी जाँचें':'Validate recovery copy'}</button><input ref={setRecoveryInput} type="file" accept=".txt,application/json,text/plain" hidden onChange={e=>{void selectRecoveryCopy(e.target.files?.[0]);}} /></>}<button className="secondary" onClick={exportBackup}>{hi?'JSON बैकअप डाउनलोड':'Download JSON backup'}</button><button className="secondary" onClick={()=>backupInput?.click()}>{hi?'JSON बैकअप चुनें':'Choose JSON backup'}</button><input ref={setBackupInput} type="file" accept="application/json,.json" hidden onChange={e=>{void selectBackup(e.target.files?.[0]);}} /></div>
       {restorePreview&&<div className="paper-warning"><span>{hi?'बैकअप पूर्वावलोकन':'Backup preview'}: {restorePreview.trades.length} {hi?'ट्रेड':'trades'}, {Object.keys(restorePreview.positions).length} {hi?'होल्डिंग':'holdings'}, {money(restorePreview.cash)} {hi?'वर्चुअल कैश':'virtual cash'}.</span><button className="primary" onClick={confirmRestore}>{hi?'Restore की पुष्टि करें':'Confirm restore'}</button><button className="secondary" onClick={()=>setRestorePreview(null)}>{hi?'रद्द':'Cancel'}</button></div>}
       {filteredTrades.length===0?<div className="empty">{portfolio.trades.length===0?(hi?'आपके पेपर ऑर्डर यहाँ दिखाई देंगे।':'Your paper orders will appear here.'):(hi?'इस तारीख सीमा में कोई ट्रेड नहीं मिला।':'No trades found in this date range.')}</div>:<div className="table-wrap"><table><thead><tr><th>{hi?'समय':'Time'}</th><th>{hi?'सिंबल':'Symbol'}</th><th>{hi?'प्रकार':'Side'}</th><th>{hi?'मात्रा':'Qty'}</th><th>{hi?'कीमत':'Price'}</th><th>{hi?'मूल्य':'Value'}</th><th>{hi?'कार्रवाई':'Action'}</th></tr></thead><tbody>{[...filteredTrades].reverse().map(t=><tr key={t.id}><td>{new Date(t.executedAt).toLocaleString()}</td><td><b>{t.symbol}</b></td><td><span className={t.side==='BUY'?'paper-buy':'paper-sell'}>{t.side}</span></td><td>{t.quantity}</td><td>{money(t.price)}</td><td>{money(t.grossValue)}</td><td><button className="secondary paper-delete-trade" onClick={()=>deleteTrade(t.id)}>{hi?'हटाएँ':'Remove'}</button></td></tr>)}</tbody></table></div>}
     </div>
