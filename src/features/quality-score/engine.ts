@@ -13,7 +13,7 @@ export function calculateQualityScore(inputs: FactorInput[], minimumCoverage = 0
   const invalidInput = inputs.some(item => !validFactors.has(item.factor) ||
     !Number.isFinite(item.weight) || item.weight < 0 ||
     (item.score !== null && (!Number.isFinite(item.score) || item.score < 0 || item.score > 100)) ||
-    !Array.isArray(item.evidence));
+    !Array.isArray(item.evidence) || (item.score !== null && (!Array.isArray(item.evidence) || item.evidence.length === 0 || item.evidence.some(source => typeof source !== 'string' || !source.trim()))));
   const invalid = errors || duplicates || invalidInput;
   const byFactor = new Map(inputs.map(item => [item.factor, item]));
   const normalized = FACTORS.map(factor => {
