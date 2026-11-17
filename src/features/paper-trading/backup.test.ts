@@ -44,6 +44,15 @@ describe('paper portfolio JSON backup',()=>{
     holding.portfolio.positions.TCS.quantity=999;
     expect(validatePaperPortfolioBackup(holding).ok).toBe(false);
   });
+  it('rejects duplicate or blank trade IDs',()=>{
+    const backup=createPaperPortfolioBackup(sample());
+    const duplicate=structuredClone(backup);
+    duplicate.portfolio.trades[1].id=duplicate.portfolio.trades[0].id;
+    expect(validatePaperPortfolioBackup(duplicate).ok).toBe(false);
+    const blank=structuredClone(backup);
+    blank.portfolio.trades[0].id='   ';
+    expect(validatePaperPortfolioBackup(blank).ok).toBe(false);
+  });
   it('rejects files larger than one megabyte',()=>{
     expect(parsePaperPortfolioBackup(' '.repeat(1_000_001)).ok).toBe(false);
   });
