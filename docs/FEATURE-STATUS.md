@@ -1,64 +1,55 @@
 # ZENURA IGNITE STOCK PICKER — Feature Status
 
-Status meanings: Pending · In Development · Completed · Tested · Live.
+Status meanings: Prototype · Implemented · Automated tests passing · Live · Blocked.
 
 | Area | Feature | Status | Notes |
 |---|---|---|---|
-| Shell | Responsive research dashboard and primary navigation | In Development | Prototype UI exists; full device/browser QA pending |
-| Search | Global company/commodity search UI | In Development | Company search selection now opens Company Research with the chosen demo identity; catalogue remains illustrative only |
-| Search | NSE/BSE master search, symbol and ISIN lookup | Pending | Requires licensed/verified company master |
-| Preferences | English/Hindi preference persistence | In Development | Preference persists; full-page translation pending |
-| Preferences | Dark/light theme persistence | In Development | Prototype theme toggle and persistence added; visual QA pending |
-| Navigation | Mobile sidebar and Back-to-Top | In Development | UI interactions implemented; device QA pending |
-| Screener | ROE, ROCE, P/E, P/B, Debt/Equity filters | In Development | UI controls are wired to the provider-neutral engine; values remain illustrative demo observations |
-| Screener | 60+ metric definitions and typed financial observations | In Development | Metric catalogue, periods, formulas and source metadata contracts added; provider integration pending |
-| Screener | Custom screens, filter builder and saved screens | In Development | Five metric filters, search, sorting, saved-screen restore/delete and storage validation implemented; full browser QA pending |
-| Company research | Financial statements and multi-year trends | In Development | Interactive Income Statement, Balance Sheet and Cash Flow views; Annual/Quarterly/TTM selector and provider-neutral period grouping added; company selection context wired; provider/backend and browser QA pending |
-| Company research | Provenance and freshness audit utilities | In Development | Source registry, licence/redistribution metadata, reporting period, unit and retrieval timestamp audit added; provider data and QA pending |
-| Data architecture | Company identity, exchange listings, ISIN deduplication | In Development | Canonical issuer/listing contracts added; verified company master and reconciliation pending |
-| Data architecture | Validation, missing-data and safe ratio helpers | In Development | Typed validation, safe calculation and observation provenance/freshness audit helpers added; broader automated tests pending |
-| Commodities | Independent instrument and contract schema | In Development | Separate commodity instrument/quote contracts added; verified exchange contract master pending |
-| Valuation | P/E, P/B, PEG, EV/EBITDA, intrinsic value | Pending | Formulas, assumptions and data validation required |
-| Quality score | Transparent weighted score and missing-data handling | Pending | Methodology and tests required |
-| Comparison | Company and peer comparison | Pending | Pending real company data model |
-| Watchlist | Add/remove and browser-local persistence | In Development | Demo companies only; account sync pending |
-| Commodities | Separate research segment and category filters | In Development | Bullion, Base Metals, Energy, Agriculture; no live quotes |
-| Commodities | Futures/options, OI, seasonality, global benchmarks | Pending | Exchange/provider feed and contract master required |
-| Commodities | Price alerts | Pending | Backend scheduler and notification permission required |
-| AI | Grounded research assistant | Pending | Verified data pipeline and model service required |
-| Reports | PDF/export/share | Pending | Report engine and source metadata required |
-| PWA | Manifest, icon and service worker shell | In Development | Added; install/offline QA pending |
-| Security | Authentication, authorization, audit and API security | Pending | Backend architecture required |
-| Monetization | Ads framework | Pending | Must remain disabled at initial launch |
-| Monetization | Subscription/entitlements/payment | Pending | Must remain disabled at initial launch |
-| Release | Build, automated tests, deployment and monitoring | Pending | Dependency installation/build not verified in this environment |
+| Shell | Responsive research dashboard and primary navigation | Implemented | Full-width mobile/tablet layout fix deployed; real-device QA remains |
+| Search | Global company/commodity search UI | Prototype | Searches illustrative demo catalogue only; no verified exchange master |
+| Search | NSE/BSE master search, symbol and ISIN lookup | Blocked | Requires approved company master/data provider |
+| Preferences | English/Hindi preference persistence | Implemented | Preference persists; complete Hindi translation remains |
+| Preferences | Dark/light theme persistence | Implemented | Device-local preference; visual accessibility QA remains |
+| Navigation | Mobile sidebar and Back-to-Top | Implemented | Responsive CSS and interactions present; device QA remains |
+| Screener | ROE, ROCE, P/E, P/B, Debt/Equity filters | Prototype | Engine wired; sample values are explicitly illustrative and unverified |
+| Screener | Metric definitions and typed financial observations | Implemented | Provider-neutral metric catalogue and provenance contracts; provider integration remains |
+| Screener | Custom screens, filter builder and saved screens | Implemented | Browser-local save/restore/delete and validation; sync not included |
+| Company research | Financial statements and multi-year trends | Implemented | Annual/Quarterly/TTM kept separate; empty until approved source is connected |
+| Company research | Provenance and freshness audit utilities | Implemented | Source/licence/period/unit/freshness checks; provider data integration remains |
+| Data architecture | Company identity, listings and ISIN deduplication | Implemented | Contracts exist; verified master and reconciliation remain |
+| Data architecture | Validation, missing-data and safe ratio helpers | Implemented | Provider-neutral helpers; broader provider fixture coverage remains |
+| Commodities | Independent instrument and contract schema | Implemented | Separate from equities; verified contract master remains |
+| Commodities | Research segment and category filters | Prototype | Illustrative catalogue only; no live prices |
+| Commodities | Futures/options, OI, seasonality, global benchmarks | Blocked | Requires licensed exchange/provider feed and contract master |
+| Valuation | FCFF DCF calculator | Implemented | User-entered assumptions only; educational model, not a target price |
+| Quality score | Explainable weighted score and evidence coverage | Implemented | Engine withholds score below coverage threshold; no company score until verified inputs exist |
+| Comparison | Period-aligned company comparison | Implemented | UI and engine present; figures withheld until verified provider data exists |
+| Watchlist | Add/remove and browser-local persistence | Prototype | Demo companies only; no account sync |
+| AI | Grounded research assistant | Blocked | Requires verified data pipeline and secure model service |
+| Reports | PDF/export/share | Pending | Report engine and source metadata output not implemented |
+| PWA | Manifest, icon and service worker shell | Implemented | Cache version updated; install/offline QA remains |
+| Security | Authentication, authorization, audit and API security | Blocked | Requires backend and security design |
+| Backend | Provider ingestion, API, cache and monitoring | Blocked | Static GitHub Pages cannot safely store provider secrets |
+| Monetization | Ads and subscriptions | Disabled by design | Must remain disabled for initial release |
+| Release | CI tests, type-check, build | Automated tests passing | 20 unit tests across five test files; CI runs tests and build |
+| Release | Deployment | Pending confirmation | GitHub Pages deployment workflow is queued for the latest tested commit |
+| Release | Android Chrome/iOS Safari, offline/PWA and accessibility QA | Pending | Requires physical-device/browser verification |
 
 ## Non-negotiable data integrity
+
 - Demo values are not real securities or investment information.
 - Never show a quote as live without a verified source and timestamp.
 - Every metric must retain source, period, unit, timestamps and validation status.
+- Missing values must never be represented as zero.
 - Keep Stock and Commodities modules isolated.
-- Paper Trading and Paper Investing are out of scope until explicitly requested.
+- Paper Trading and Paper Investing are out of scope unless explicitly requested.
 
-### Company search-to-research navigation (v0.5.6)
-Global search results for illustrative companies now open Company Research with that company identity selected. The Research workspace also has a company selector, and the illustrative profile modal can open the same workspace. This is navigation/context only: no exchange listing is verified and no financial observations are fabricated. Full React/Vite build and browser QA remain pending because dependencies are unavailable in this environment.
+## Release blockers
 
+1. Select a provider and obtain written confirmation that the intended commercial app display/use is licensed. Exchange data is subject to subscriber agreements and redistribution/display restrictions.
+2. Obtain provider credentials and store them only in a secure backend secret store—not in the static frontend or GitHub Pages bundle.
+3. Implement backend ingestion/API, source registry, exchange master reconciliation, caching, monitoring and access controls.
+4. Complete Hindi translation, report export and grounded AI only after the data pipeline is verified.
+5. Complete physical-device accessibility, responsive, offline and PWA update QA.
+6. Add authentication and user data sync after backend/security architecture is approved.
 
-## Engineering milestone — 17 Nov 2026
-
-- Added a provider-neutral FCFF DCF calculation engine with input validation, explicit net-debt bridge, per-share output and sensitivity caveats: `src/features/valuation/engine.ts`.
-- Added an explainable six-factor score aggregator with coverage disclosure and score withholding below the configured coverage threshold: `src/features/quality-score/engine.ts`.
-- Added a period-safe comparison engine. It only marks values comparable when the requested period type and period end align and all selected observations are verified: `src/features/comparison/engine.ts`.
-- These are calculation/domain engines, not yet complete end-user screens. Their UI integration and automated unit tests remain open work.
-- The public app still uses an explicitly labelled illustrative demo universe for navigation and screener interaction. It is not an NSE/BSE company master and must not be treated as market research data.
-- Build and Pages deployment workflows have passed for prior UI commits. The latest comparison-engine commit is awaiting CI confirmation.
-
-## Release blockers (must not be represented as complete)
-
-1. Select and approve a licensed Indian equity market-data provider; configure secrets only after the provider account and terms are confirmed.
-2. Implement a secure backend ingestion/API layer, source registry, exchange master reconciliation, cache and monitoring. GitHub Pages alone is a static frontend and must not hold provider secrets.
-3. Integrate DCF, quality and comparison engines into reviewed UI flows; add automated unit tests and edge-case fixtures.
-4. Complete accessibility, Android Chrome/iOS Safari responsive QA, offline/PWA install tests, and stale-cache update tests.
-5. Implement authentication and user data sync only after backend/security design.
-
-Paper trading/investing, advertisements and paid subscriptions remain out of initial release scope or disabled as previously specified.
+Paper trading/investing, advertisements and paid subscriptions remain outside initial release scope or disabled.
