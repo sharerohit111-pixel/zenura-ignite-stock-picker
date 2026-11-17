@@ -13,7 +13,7 @@ export default function FinancialStatementsPanel({ observations = [], language =
   const columns = useMemo(() => buildStatementColumns(observations, statement, period), [observations, statement, period]);
   const lines = columns[0]?.lines ?? [];
   return <div className="panel statement-panel">
-    <div className="panel-title"><div><span className="eyebrow muted"{language==='HI'?'वित्तीय':'FINANCIALS'}</span><h3>{language==='HI'?'वित्तीय विवरण':'Financial Statements'}</h3></div><FileSpreadsheet size={19}/></div>
+    <div className="panel-title"><div><span className="eyebrow muted">{language==='HI'?'वित्तीय':'FINANCIALS'}</span><h3>{language==='HI'?'वित्तीय विवरण':'Financial Statements'}</h3></div><FileSpreadsheet size={19}/></div>
     <div className="statement-controls">
       <div className="commodity-tabs">{(Object.keys(statementLabels) as StatementKind[]).map(key => <button key={key} className={statement === key ? 'active' : ''} onClick={() => setStatement(key)}>{statementLabels[key]}</button>)}</div>
       <select aria-label={language==='HI'?'रिपोर्टिंग अवधि':'Reporting period'} value={period} onChange={event => setPeriod(event.target.value as (typeof periods)[number])}>{periods.map(item => <option key={item} value={item}>{item === 'TTM' ? (language==='HI'?'पिछले 12 महीने':'Trailing 12 Months') : item}</option>)}</select>
